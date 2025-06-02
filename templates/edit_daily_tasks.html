@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Daily Tasks</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <style>
+    .edit-list { max-width: 600px; margin: 2em auto; }
+    .edit-list input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1.5px solid #e3eaf2;
+      background: #f7fafc;
+      font-size: 1.1em;
+      color: #1a2233;
+    }
+    .edit-list .remove-btn {
+      background: none;
+      border: none;
+      color: #ff3860;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .edit-list .add-btn {
+      margin-top: 1em;
+      background: linear-gradient(90deg, #e3eaf2 0%, #b8c6db 100%);
+      color: #1a2233;
+      font-family: 'Montserrat', Arial, sans-serif;
+      font-weight: 600;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 12px #e3eaf2cc, 0 0 0 2px #b8c6db;
+      cursor: pointer;
+      padding: 0 32px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      letter-spacing: 1.2px;
+    }
+    .edit-list .add-btn:hover {
+      background: linear-gradient(90deg, #b8c6db 0%, #e3eaf2 100%);
+      color: #1a2233;
+      box-shadow: 0 0 24px #b8c6db, 0 0 0 2px #e3eaf2;
+    }
+  </style>
+  <script>
+    function addTaskField() {
+      const list = document.getElementById('edit-list');
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.name = 'daily_task';
+      input.placeholder = 'New daily task...';
+      input.required = true;
+      list.appendChild(input);
+    }
+    function removeTaskField(btn) {
+      btn.parentElement.remove();
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Edit Daily Tasks</h1>
+    <form method="POST" class="edit-list" id="edit-list">
+      {% for task in tasks %}
+      <div>
+        <input type="text" name="daily_task" value="{{ task['task'] }}" required />
+        <button type="button" class="remove-btn" onclick="removeTaskField(this)">&times;</button>
+      </div>
+      {% endfor %}
+      <div>
+        <button type="button" class="add-btn" onclick="addTaskField()">Add Task</button>
+      </div>
+      <div style="margin-top:2em;">
+        <button type="submit" class="btn-glow">Save Daily Tasks</button>
+        <a href="{{ url_for('todo') }}" style="margin-left:2em;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
