@@ -24,7 +24,7 @@
       <li class="task-item{% if task['done'] %} task-done{% endif %}" data-task-id="{{ task['id'] }}">
         <span class="task-label" tabindex="0">{{ task['task'] }}</span>
         <div class="task-actions">
-          <button class="task-action-btn edit" title="Edit" onclick="editTask({{ task['id'] }}, '{{ task['task']|escape }}')">&#9998;</button>
+          <button class="task-action-btn edit" title="Edit" type="button" onclick="editTask({{ task['id'] }}, '{{ task['task']|escape }}')">&#9998;</button>
           <form action="{{ url_for('delete_task', task_id=task['id']) }}" method="POST" style="display:inline;">
             <button type="submit" class="task-action-btn delete" title="Delete">&#10005;</button>
           </form>
@@ -47,7 +47,7 @@
   <!-- Edit Task Modal -->
   <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);align-items:center;justify-content:center;z-index:1000;">
     <div style="background:#fff;padding:2em 2em 1.5em 2em;border-radius:16px;box-shadow:0 8px 32px #b8c6db44;max-width:90vw;">
-      <form id="edit-task-form" method="POST">
+      <form id="edit-task-form" method="POST" autocomplete="off">
         <input type="text" name="task" id="edit-task-input" required style="width:300px;max-width:80vw;padding:10px;font-size:1.1em;border-radius:8px;border:1.5px solid #e3eaf2;">
         <div style="margin-top:1.2em;text-align:right;">
           <button type="submit" class="add-btn">Save</button>
