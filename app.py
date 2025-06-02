@@ -128,6 +128,99 @@ def new_day():
 def reminders():
     return render_template('reminders.html')
 
+@app.route('/reminders_data')
+def reminders_data():
+    year = int(request.args.get('year'))
+    month = int(request.args.get('month'))
+    db = get_db()
+    rows = db.execute(
+        "SELECT * FROM reminders WHERE strftime('%Y', date)=? AND strftime('%m', date)=?",
+        (str(year), str(month).zfill(2))
+    ).fetchall()
+    reminders = {}
+    for row in rows:
+        date = row['date']
+        if date not in reminders:
+            reminders[date] = []
+        reminders[date].append({
+            'id': row['id'],
+            'title': row['title'],
+            'description': row['description'],
+            'color': row['color'],
+            'time': row['time'] or '',
+            'done': bool(row['done'])
+        })
+    return jsonify(reminders)
+
+@app.route('/add_reminder', methods=['POST'])
+def add_reminder():
+    data = request.get_json()
+    date = data.get('date')
+    title = data.get('title', '').strip()
+    description = data.get('description', '').strip()
+    color = data.get('color', '#5c6a82')
+    time = data.get('time', '')
+    if not date or not title or not description:
+        return jsonify(success=False), 400
+    db = get_db()
+    db.execute(
+        "INSERT INTO reminders (title, color, date, time, description, done) VALUES (?, ?, ?, ?, ?, 0)",
+        (title, color, date, time, description)
+    )
+    db.commit()
+    return jsonify(success=True)
+
+@app.route('/edit_reminder', methods=['POST'])
+def edit_reminder():
+    data = request.get_json()
+    rid = data.get('id')
+    title = data.get('title', '').strip()
+    description = data.get('description', '').strip()
+    color = data.get('color', '#5c6a82')
+    time = data.get('time', '')
+    if not rid or not title or not description:
+        return jsonify(success=False), 400
+    db = get_db()
+    db.execute(
+        "UPDATE reminders SET title=?, description=?, color=?, time=? WHERE id=?",
+        (title, description, color, time, rid)
+    )
+    db.commit()
+    return jsonify(success=True)
+
+@app.route('/delete_reminder', methods=['POST'])
+def delete_reminder():
+    data = request.get_json()
+    rid = data.get('id')
+    if not rid:
+        return jsonify(success=False), 400
+    db = get_db()
+    db.execute("DELETE FROM reminders WHERE id=?", (rid,))
+    db.commit()
+    return jsonify(success=True)
+
+@app.route('/done_reminder', methods=['POST'])
+def done_reminder():
+    data = request.get_json()
+    rid = data.get('id')
+    if not rid:
+        return jsonify(success=False), 400
+    db = get_db()
+    db.execute("UPDATE reminders SET done=1 WHERE id=?", (rid,))
+    db.commit()
+    return jsonify(success=True)
+
+@app.route('/undone_reminder', methods=['POST'])
+def undone_reminder():
+    data = request.get_json()
+    rid = data.get('id')
+    if not rid:
+        return jsonify(success=False), 400
+    db = get_db()
+    db.execute("UPDATE reminders SET done=0 WHERE id=?", (rid,))
+    db.commit()
+    return jsonify(success=True)
+
 @app.route('/goals')
 def goals():
     return render_template('goals.html')
