@@ -1,0 +1,26 @@
+<ul id="task-list">
+  {% if tasks %}
+    {% for task in tasks %}
+    <li class="task-item{% if task['done'] %} task-done{% endif %}" data-task-id="{{ task['id'] }}">
+      <span class="task-label" tabindex="0">{{ task['title']|e }}</span>
+      <div class="task-actions">
+        <button
+          class="task-action-btn edit"
+          title="Edit"
+          type="button"
+          aria-label="Edit Task"
+          data-task-id="{{ task['id'] }}"
+          data-task-text="{{ task['title']|e }}"
+        >
+          &#9998;
+        </button>
+        <form class="delete-task-form" action="{{ url_for('delete_task', task_id=task['id']) }}" method="POST" style="display:inline;">
+          <button type="submit" class="task-action-btn delete" title="Delete" aria-label="Delete Task">&#10005;</button>
+        </form>
+      </div>
+    </li>
+    {% endfor %}
+  {% else %}
+    <li class="task-item">No tasks yet.</li>
+  {% endif %}
+</ul>

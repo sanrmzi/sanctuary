@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctuary - Projects</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+  <div class="container" id="main-content">
+    <h1>Projects</h1>
+    <p class="subheader">Track your projects and progress</p>
+
+    <div class="content">
+      <h3>Projects List</h3>
+      <ul>
+        {% for project in projects %}
+        <li>
+          <strong>{{ project['title'] }}</strong> - {{ project['description'] }}<br>
+          Category: {{ project['category'] }}<br>
+          Days Worked: {{ project['total_days_worked'] }} | Hours Worked: {{ project['total_hours_worked'] }}<br>
+          Consistent Days: {{ project['days_consistent'] }} | Started: {{ project['start_date'] }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="graph">
+      <h3>Projects Overview</h3>
+      <svg viewBox="0 0 100 40" class="chart">
+        <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
+      </svg>
+    </div>
+  </div>
+  <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
+</body>
+</html>
