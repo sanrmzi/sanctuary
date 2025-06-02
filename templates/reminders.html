@@ -6,36 +6,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sanctuary - Reminders</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}" />
+  <script defer src="{{ url_for('static', filename='calendar.js') }}"></script>
 </head>
 
 <body>
-
   <div class="container">
     <h1>Reminders</h1>
-    <p class="subheader">Manage your reminders here</p>
+    <p class="subheader">Your monthly calendar</p>
 
-    <div class="reminder-list">
-      <h3>Your Reminders</h3>
-      <ul>
-        <li>Reminder 1</li>
-        <li>Reminder 2</li>
-        <li>Reminder 3</li>
-      </ul>
+    <div class="calendar-controls">
+      <button class="calendar-nav" id="prev-month">&lt;</button>
+      <span id="calendar-month-year"></span>
+      <button class="calendar-nav" id="next-month">&gt;</button>
     </div>
 
-    <div class="add-reminder">
-      <h3>Add a New Reminder</h3>
-      <form action="/add_reminder" method="POST">
-        <input type="text" name="reminder" placeholder="Enter your reminder" required />
-        <button type="submit">Add Reminder</button>
-      </form>
-    </div>
+    <div id="calendar"></div>
 
-    <div class="navigation">
-      <a href="{{ url_for('index') }}">Back to Command Center</a>
+    <div class="navigation" style="margin-top:2.5em;">
+      <a href="{{ url_for('index') }}" class="recall-btn">
+        <svg width="22" height="22" style="vertical-align:middle;margin-right:8px;" fill="none" stroke="#1a2233" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="12 19 5 12 12 5"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Back
+      </a>
     </div>
   </div>
 
+  <!-- Reminder Modal -->
+  <div id="reminder-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+      <form id="reminder-form">
+        <h3 id="modal-date"></h3>
+        <input type="hidden" id="reminder-id" name="reminder_id" />
+        <label>Title</label>
+        <input type="text" name="title" id="reminder-title" maxlength="40" required />
+        <label>Description</label>
+        <input type="text" name="description" id="reminder-desc" maxlength="100" required />
+        <label>Time <span style="color:#aaa;font-size:0.9em;">(optional)</span></label>
+        <input type="time" name="time" id="reminder-time" />
+        <label>Color</label>
+        <input type="color" name="color" id="reminder-color" value="#5c6a82" />
+        <div style="margin-top:1.2em;text-align:right;">
+          <button type="submit" class="add-btn" id="save-reminder-btn">Save</button>
+          <button type="button" class="add-btn" style="background:#eee;color:#5c6a82;margin-left:1em;" onclick="closeReminderModal()">Cancel</button>
+          <button type="button" class="add-btn" id="delete-reminder-btn" style="background:#ffeaea;color:#b8002f;margin-left:1em;display:none;">Delete</button>
+          <button type="button" class="add-btn" id="done-reminder-btn" style="background:#e3eaf2;color:#1a2233;margin-left:1em;display:none;">Mark as Done</button>
+          <button type="button" class="add-btn" id="undone-reminder-btn" style="background:#e3eaf2;color:#1a2233;margin-left:1em;display:none;">Unmark as Done</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
-
 </html>

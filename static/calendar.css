@@ -1,0 +1,174 @@
+.calendar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 1.5em;
+}
+
+.calendar-nav {
+  background: linear-gradient(90deg, #e3eaf2 0%, #b8c6db 100%);
+  color: #1a2233;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.3em;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  padding: 6px 18px;
+  cursor: pointer;
+  box-shadow: 0 0 8px #e3eaf2cc, 0 0 0 2px #b8c6db;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.calendar-nav:hover {
+  background: linear-gradient(90deg, #b8c6db 0%, #e3eaf2 100%);
+  box-shadow: 0 0 16px #b8c6db, 0 0 0 2px #e3eaf2;
+}
+
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.calendar-day {
+  background: #f7fafc;
+  border: 1.5px solid #e3eaf2;
+  border-radius: 12px;
+  min-width: 92px;
+  min-height: 92px;
+  aspect-ratio: 1 / 1;
+  padding: 8px 6px 4px 8px;
+  position: relative;
+  cursor: pointer;
+  transition: box-shadow 0.2s, border 0.2s;
+  box-shadow: 0 2px 12px #e3eaf233;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: hidden;
+}
+.calendar-day:hover {
+  border: 1.5px solid #5c6a82;
+  box-shadow: 0 4px 24px #b8c6db33;
+  background: #e3eaf2;
+}
+.calendar-day.today {
+  border: 2px solid #00bcd4;
+  box-shadow: 0 0 0 2px #00bcd4;
+}
+.calendar-day .day-number {
+  font-weight: 600;
+  color: #5c6a82;
+  font-size: 1.1em;
+  margin-bottom: 4px;
+}
+.reminder-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 4px #b8c6db55;
+}
+.reminder-list {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reminder-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.79em; /* 3 points smaller than 0.97em */
+  color: #1a2233;
+  background: #fff;
+  border-radius: 6px;
+  padding: 2px 6px;
+  margin-bottom: 2px;
+  box-shadow: 0 1px 4px #e3eaf255;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-family: 'Roboto Mono', 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.reminder-item strong {
+  font-size: 0.79em; /* 3 points smaller than 0.97em */
+  font-family: 'Roboto Mono', 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-content {
+  background: #fff;
+  padding: 2em 2em 1.5em 2em;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px #b8c6db44;
+  max-width: 90vw;
+  min-width: 320px;
+}
+#reminder-form label {
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 0.3em;
+  color: #5c6a82;
+  font-weight: 500;
+  font-size: 1em;
+}
+#reminder-form input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid #e3eaf2;
+  background: #f7fafc;
+  font-size: 1.05em;
+  color: #1a2233;
+}
+#reminder-form input[type="time"] {
+  width: 60%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #e3eaf2;
+  background: #f7fafc;
+  font-size: 1em;
+  color: #1a2233;
+}
+#reminder-form input[type="color"] {
+  width: 40px;
+  height: 32px;
+  border: none;
+  background: none;
+  margin-left: 8px;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .calendar-day {
+    min-width: 38px;
+    min-height: 38px;
+    aspect-ratio: 1 / 1;
+    font-size: 0.85em;
+  }
+  .reminder-item, .reminder-item strong {
+    font-size: 0.67em; /* 3 points smaller than 0.85em */
+  }
+}
