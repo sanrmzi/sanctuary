@@ -59,6 +59,14 @@ def create_db():
         )
     ''')
 
+    # Ensure 'title' column exists before updating it
+    try:
+        c.execute('ALTER TABLE reminders ADD COLUMN title TEXT')
+    except sqlite3.OperationalError:
+        pass  # Column already exists
+
+    c.execute("UPDATE reminders SET title = '(No Title)' WHERE title IS NULL OR title = ''")
+
     # 4. To-Do (history of daily to-dos)
     c.execute('''
         CREATE TABLE IF NOT EXISTS todo_history (
