@@ -1,38 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Sanctuary - Learning{% endblock %}
+{% block content %}
+<h1>Learning</h1>
+<p class="subheader">Expand Your Knowledge</p>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanctuary - Learning</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-</head>
+<div class="content">
+  <h3>Learning Paths</h3>
+  <ul>
+    {% for path in learning_paths %}
+    <li>
+      <strong>{{ path['title'] }}</strong> - {{ path['description'] }}<br>
+      Consistent Days: {{ path['days_consistent'] }} / Total Days: {{ path['total_days'] }} / Total Hours: {{ path['total_hours'] }}<br>
+      Started: {{ path['start_date'] }}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
 
-<body>
-  <div class="container" id="main-content">
-    <h1>Learning</h1>
-    <p class="subheader">Expand Your Knowledge</p>
-
-    <div class="content">
-      <h3>Learning Paths</h3>
-      <ul>
-        {% for path in learning_paths %}
-        <li>
-          <strong>{{ path['title'] }}</strong> - {{ path['description'] }}<br>
-          Consistent Days: {{ path['days_consistent'] }} / Total Days: {{ path['total_days'] }} / Total Hours: {{ path['total_hours'] }}<br>
-          Started: {{ path['start_date'] }}
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="graph">
-      <h3>Learning Progress Overview</h3>
-      <svg viewBox="0 0 100 40" class="chart">
-        <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
-      </svg>
-    </div>
-  </div>
-  <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
-</body>
-</html>
+<div class="graph">
+  <h3>Learning Progress Overview</h3>
+  <svg viewBox="0 0 100 40" class="chart">
+    <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
+  </svg>
+</div>
+{% endblock %}

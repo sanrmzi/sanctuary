@@ -1,49 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Sanctuary - Finances{% endblock %}
+{% block content %}
+<h1>Finances</h1>
+<p class="subheader">Manage your financial goals and budgets</p>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanctuary - Finances</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-</head>
+<div class="content">
+  <h3>Exchange Rates</h3>
+  <ul>
+    {% for rate in exchange_rates %}
+    <li>USD: {{ rate['usd'] }} | TRY: {{ rate['try'] }} | IQD: {{ rate['iqd'] }} (Updated: {{ rate['updated_at'] }})</li>
+    {% endfor %}
+  </ul>
+  <h3>Savings</h3>
+  <p>Total Savings: {{ savings['total'] }}</p>
+  <h3>Income</h3>
+  <ul>
+    {% for inc in income %}
+    <li>{{ inc['date'] }} - {{ inc['description'] }}: {{ inc['amount'] }}</li>
+    {% endfor %}
+  </ul>
+  <h3>Expenses</h3>
+  <ul>
+    {% for exp in expense %}
+    <li>{{ exp['date'] }} - {{ exp['category'] }}: {{ exp['amount'] }} ({{ exp['description'] }})</li>
+    {% endfor %}
+  </ul>
+</div>
 
-<body>
-  <div class="container" id="main-content">
-    <h1>Finances</h1>
-    <p class="subheader">Manage your financial goals and budgets</p>
-
-    <div class="content">
-      <h3>Exchange Rates</h3>
-      <ul>
-        {% for rate in exchange_rates %}
-        <li>USD: {{ rate['usd'] }} | TRY: {{ rate['try'] }} | IQD: {{ rate['iqd'] }} (Updated: {{ rate['updated_at'] }})</li>
-        {% endfor %}
-      </ul>
-      <h3>Savings</h3>
-      <p>Total Savings: {{ savings['total'] }}</p>
-      <h3>Income</h3>
-      <ul>
-        {% for inc in income %}
-        <li>{{ inc['date'] }} - {{ inc['description'] }}: {{ inc['amount'] }}</li>
-        {% endfor %}
-      </ul>
-      <h3>Expenses</h3>
-      <ul>
-        {% for exp in expense %}
-        <li>{{ exp['date'] }} - {{ exp['category'] }}: {{ exp['amount'] }} ({{ exp['description'] }})</li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="graph">
-      <h3>Financial Overview</h3>
-      <svg viewBox="0 0 100 40" class="chart">
-        <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
-      </svg>
-    </div>
-  </div>
-  <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
-</body>
-
-</html>
+<div class="graph">
+  <h3>Financial Overview</h3>
+  <svg viewBox="0 0 100 40" class="chart">
+    <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
+  </svg>
+</div>
+{% endblock %}

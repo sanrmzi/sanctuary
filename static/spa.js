@@ -18,21 +18,20 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch(url, {headers: {'X-Requested-With': 'XMLHttpRequest'}})
       .then(res => res.text())
       .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newContent = doc.getElementById('main-content');
-        if (newContent) {
-          document.getElementById('main-content').innerHTML = newContent.innerHTML;
-          if (push) history.pushState({url: url}, '', url);
+        document.getElementById('main-content').innerHTML = html;
 
-          // Dynamically load scripts for each page
-          if (url.includes('/reminders')) {
-            loadScriptOnce('/static/calendar.js', 'calendar-js');
-          } else if (url.includes('/todo')) {
-            loadScriptOnce('/static/todo.js', 'todo-js');
-          } else {
-            window.dispatchEvent(new Event('spa:content-updated'));
-          }
+        // Load the correct script for the new content
+        if (url.includes('/reminders')) {
+          loadScriptOnce('/static/calendar.js', 'calendar-js');
+        } else if (url.includes('/todo')) {
+          loadScriptOnce('/static/todo.js', 'todo-js');
+        } else {
+          window.dispatchEvent(new Event('spa:content-updated'));
+        }
+
+        // Update browser history
+        if (push) {
+          history.pushState({url: url}, '', url);
         }
       });
   }

@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: 24px;
-  margin-bottom: 1.5em;
+  margin-bottom: 1em;
 }
 
 .calendar-nav {
@@ -24,23 +24,33 @@
   box-shadow: 0 0 16px #b8c6db, 0 0 0 2px #e3eaf2;
 }
 
+/* Calendar grid fits nicely below header/controls, with some space at the bottom */
 #calendar {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
+  gap: 4px 8px; /* 4px vertical, 8px horizontal gap */
+  width: 98%;
+  max-width: 1200px;
+  margin: 0 auto 14px auto;
+  height: 90vh;
+  max-height: 1200px;
+  min-height: 120px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
+/* Make calendar days a bit less tall so all fit in the container */
 .calendar-day {
   background: #f7fafc;
   border: 1.5px solid #e3eaf2;
   border-radius: 12px;
-  min-width: 92px;
-  min-height: 92px;
-  aspect-ratio: 1 / 1;
-  padding: 8px 6px 4px 8px;
+  min-width: 50px;
+  min-height: 70px;   /* Reduced from 100px */
+  height: 54px;       /* Reduced from 76px */
+  aspect-ratio: unset;
+  padding: 8px 4px 4px 8px;
   position: relative;
   cursor: pointer;
   transition: box-shadow 0.2s, border 0.2s;
@@ -50,6 +60,8 @@
   justify-content: flex-start;
   align-items: flex-start;
   overflow: hidden;
+  font-size: clamp(0.7em, 2vw, 1em);
+  margin: 0;
 }
 .calendar-day:hover {
   border: 1.5px solid #5c6a82;
@@ -77,10 +89,8 @@
   box-shadow: 0 0 4px #b8c6db55;
 }
 .reminder-list {
-  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 .reminder-item {
   display: flex;
@@ -89,7 +99,7 @@
   color: #1a2233;
   background: #fff;
   border-radius: 6px;
-  padding: 2px 6px;
+  padding: 2px;
   margin-bottom: 2px;
   box-shadow: 0 1px 4px #e3eaf255;
   overflow: hidden;
@@ -124,6 +134,8 @@
   box-shadow: 0 8px 32px #b8c6db44;
   max-width: 90vw;
   min-width: 320px;
+  max-height: 80vh; /* Make modal content scrollable if needed */
+  overflow-y: auto;
 }
 #reminder-form label {
   display: block;
@@ -161,14 +173,43 @@
   cursor: pointer;
 }
 
+/* Responsive: shrink calendar for small screens */
 @media (max-width: 900px) {
+  #calendar {
+    height: calc(100vh - 90px);
+    max-height: calc(100vh - 90px);
+    min-height: 80px;
+    width: 99%;
+    gap: 3px 6px;
+  }
   .calendar-day {
-    min-width: 38px;
-    min-height: 38px;
-    aspect-ratio: 1 / 1;
-    font-size: 0.85em;
+    min-width: 32px;
+    min-height: 38px;   /* Reduced from 56px */
+    height: 38px;       /* Reduced from 56px */
+    font-size: clamp(0.6em, 2vw, 0.9em);
+    padding: 4px 2px 2px 4px;
   }
-  .reminder-item, .reminder-item strong {
-    font-size: 0.67em; /* 3 points smaller than 0.85em */
+}
+
+@media (max-width: 600px) {
+  #calendar {
+    height: calc(100vh - 70px);
+    max-height: calc(100vh - 70px);
+    min-height: 60px;
+    gap: 2px 4px;
+    width: 100%;
   }
+  .calendar-day {
+    min-width: 20px;
+    min-height: 28px;   /* Reduced from 40px */
+    height: 28px;       /* Reduced from 40px */
+    font-size: clamp(0.5em, 3vw, 0.8em);
+    padding: 2px 1px 1px 2px;
+    border-radius: 7px;
+  }
+}
+
+
+h1 {
+  margin-top: 0 !important;  /* Move header up */
 }

@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
 </head>
 <body>
+  {% set hide_menu = true %}
+  {% extends "base.html" %}
+  {% block title %}Sanctuary Registration{% endblock %}
+  {% block content %}
   <div class="login-container">
     <div class="login-box">
       <h1 class="glow">Welcome to Sanctuary!</h1>
@@ -22,9 +26,7 @@
       </form>
     </div>
   </div>
-  <div class="container" id="main-content">
-    <!-- ...page content... -->
-  </div>
+  {% endblock %}
   <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+const remindersCache = {};
+
 function initCalendarPage() {
   const calendar = document.getElementById('calendar');
   if (!calendar) return;
@@ -8,10 +10,18 @@ function initCalendarPage() {
     currentYear: new Date().getFullYear()
   };
 
-  function fetchReminders(year, month) {
+  function fetchReminders(year, month, force = false) {
+    const cacheKey = `${year}-${month}`;
+    if (!force && remindersCache[cacheKey]) {
+      renderCalendar(year, month, remindersCache[cacheKey]);
+      return;
+    }
     fetch(`/reminders_data?year=${year}&month=${month + 1}`)
       .then(res => res.json())
-      .then(data => renderCalendar(year, month, data));
+      .then(data => {
+        remindersCache[cacheKey] = data;
+        renderCalendar(year, month, data);
+      });
   }
 
   function renderCalendar(year, month, reminders) {
@@ -81,7 +91,7 @@ function initCalendarPage() {
     }
   }
 
-  // Modal logic (same as before)
+  // Modal logic
   window.closeReminderModal = function () {
     document.getElementById('reminder-modal').style.display = 'none';
   };
@@ -112,28 +122,33 @@ function initCalendarPage() {
     }
   }
 
-  document.getElementById('reminder-form').onsubmit = function (e) {
-    e.preventDefault();
-    const date = this.getAttribute('data-date');
-    const id = document.getElementById('reminder-id').value;
-    const title = document.getElementById('reminder-title').value;
-    const description = document.getElementById('reminder-desc').value;
-    const time = document.getElementById('reminder-time').value;
-    const color = document.getElementById('reminder-color').value;
-    const url = id ? '/edit_reminder' : '/add_reminder';
-    fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, date, title, description, time, color })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          closeReminderModal();
-          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
-        }
-      });
-  };
+  const reminderForm = document.getElementById('reminder-form');
+  if (reminderForm) {
+    reminderForm.onsubmit = function (e) {
+      e.preventDefault();
+      const date = this.getAttribute('data-date');
+      const id = document.getElementById('reminder-id').value;
+      const title = document.getElementById('reminder-title').value;
+      const description = document.getElementById('reminder-desc').value;
+      const time = document.getElementById('reminder-time').value;
+      const color = document.getElementById('reminder-color').value;
+      const url = id ? '/edit_reminder' : '/add_reminder';
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, date, title, description, time, color })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            closeReminderModal();
+            const cacheKey = `${calendarState.currentYear}-${calendarState.currentMonth}`;
+            delete remindersCache[cacheKey];
+            fetchReminders(calendarState.currentYear, calendarState.currentMonth, true);
+          }
+        });
+    };
+  }
 
   document.getElementById('delete-reminder-btn').onclick = function () {
     const id = document.getElementById('reminder-id').value;
@@ -147,7 +162,9 @@ function initCalendarPage() {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
+          const cacheKey = `${calendarState.currentYear}-${calendarState.currentMonth}`;
+          delete remindersCache[cacheKey];
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth, true);
         }
       });
   };
@@ -164,7 +181,9 @@ function initCalendarPage() {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
+          const cacheKey = `${calendarState.currentYear}-${calendarState.currentMonth}`;
+          delete remindersCache[cacheKey];
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth, true);
         }
       });
   };
@@ -181,7 +200,9 @@ function initCalendarPage() {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
+          const cacheKey = `${calendarState.currentYear}-${calendarState.currentMonth}`;
+          delete remindersCache[cacheKey];
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth, true);
         }
       });
   };
@@ -223,3 +244,30 @@ document.addEventListener('DOMContentLoaded', function () {
     initCalendarPage();
   }
 });
+
+function updateDayCell(year, month, dateStr, remindersForDay) {
+  const cell = document.querySelector(`.calendar-day[data-date="${dateStr}"]`);
+  if (!cell) return;
+  // Remove old reminders list
+  const oldList = cell.querySelector('.reminder-list');
+  if (oldList) cell.removeChild(oldList);
+
+  // Add new reminders list
+  if (remindersForDay && remindersForDay.length) {
+    const rList = document.createElement('div');
+    rList.className = 'reminder-list';
+    remindersForDay.forEach(rem => {
+      const item = document.createElement('div');
+      item.className = 'reminder-item';
+      let shortTitle = rem.title.length > 12 ? rem.title.slice(0, 12) + '…' : rem.title;
+      item.innerHTML = `<span class="reminder-dot" style="background:${rem.color};"></span><strong>${shortTitle}</strong>`;
+      if (rem.done) item.style.opacity = "0.5";
+      item.ondblclick = function(e) {
+        e.stopPropagation();
+        openReminderModal(dateStr, rem);
+      };
+      rList.appendChild(item);
+    });
+    cell.appendChild(rList);
+  }
+}

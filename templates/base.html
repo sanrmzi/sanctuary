@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Sanctuary{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}" />
+  <link rel="preload" href="/static/calendar.js" as="script">
+  <link rel="preload" href="/static/todo.js" as="script">
+</head>
+<body>
+  <div class="layout{% if hide_menu %} hide-menu{% endif %}">
+    {% if not hide_menu %}
+    <nav class="side-menu">
+      <div class="side-menu-header">Sanctuary</div>
+      <ul>
+        <li><a href="{{ url_for('index') }}" class="side-menu-btn">Dashboard</a></li>
+        <li><a href="{{ url_for('todo') }}" class="side-menu-btn">To-Do List</a></li>
+        <li><a href="{{ url_for('reminders') }}" class="side-menu-btn">Reminders</a></li>
+        <li><a href="{{ url_for('learning') }}" class="side-menu-btn">Learning</a></li>
+        <li><a href="{{ url_for('finances') }}" class="side-menu-btn">Finances</a></li>
+        <li><a href="{{ url_for('projects') }}" class="side-menu-btn">Projects</a></li>
+        <li>
+          <form action="{{ url_for('logout') }}" method="get" style="margin:0;">
+            <button type="submit" class="side-menu-btn logout-btn" style="width:100%;">Logout</button>
+          </form>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+    <main class="container" id="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
+</body>
+</html>

@@ -3,8 +3,9 @@ import sqlite3
 import os
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = 'your_secret_key'  # Change this to a secure random key
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000  # 1 year
 
 DATABASE = os.path.join(os.path.dirname(__file__), 'sanctuary.db')
 
