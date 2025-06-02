@@ -67,6 +67,8 @@ def require_login():
 
 @app.route('/')
 def index():
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render_template('index.html')
     return render_template('index.html')
 
 @app.route('/todo', methods=['GET'])
@@ -78,18 +80,25 @@ def todo():
 @app.route('/add_task', methods=['POST'])
 def add_task():
     db = get_db()
-    task = request.form['task'].strip()
-    if task:
-        db.execute('INSERT INTO daily_todo (task, done) VALUES (?, ?)', (task, 0))
+    title = request.form['task'].strip()  # 'task' is the form field, but the DB column is 'title'
+    if title:
+        cur = db.execute('INSERT INTO daily_todo (title, done) VALUES (?, ?)', (title, 0))
         db.commit()
+        task_id = cur.lastrowid
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+            html = render_template('task_list.html', tasks=tasks)
+            return jsonify(success=True, html=html)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(success=False), 400
     return redirect(url_for('todo'))
 
 @app.route('/edit_task/<int:task_id>', methods=['POST'])
 def edit_task(task_id):
     db = get_db()
-    new_task = request.form['task'].strip()
-    if new_task:
-        db.execute('UPDATE daily_todo SET task=? WHERE id=?', (new_task, task_id))
+    new_title = request.form['title'].strip()
+    if new_title:
+        db.execute('UPDATE daily_todo SET title=? WHERE id=?', (new_title, task_id))
         db.commit()
     return redirect(url_for('todo'))
 
@@ -98,6 +107,8 @@ def delete_task(task_id):
     db = get_db()
     db.execute('DELETE FROM daily_todo WHERE id=?', (task_id,))
     db.commit()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify(success=True)
     return redirect(url_for('todo'))
 
 @app.route('/toggle_task/<int:task_id>', methods=['POST'])
@@ -117,8 +128,8 @@ def new_day():
     tasks = db.execute('SELECT * FROM daily_todo').fetchall()
     for t in tasks:
         db.execute(
-            'INSERT INTO todo_history (date, task, done) VALUES (?, ?, ?)',
-            (today, t['task'], t['done'])
+            'INSERT INTO todo_history (date, title, done) VALUES (?, ?, ?)',
+            (today, t['title'], t['done'])
         )
     db.execute('DELETE FROM daily_todo')
     db.commit()
@@ -231,27 +242,28 @@ def gym():
 
 @app.route('/learning')
 def learning():
-    return render_template('learning.html')
+    db = get_db()
+    learning_paths = db.execute('SELECT * FROM learning_path ORDER BY start_date DESC').fetchall()
+    return render_template('learning.html', learning_paths=learning_paths)
+
+@app.route('/projects')
+def projects():
+    db = get_db()
+    projects = db.execute('SELECT * FROM projects ORDER BY start_date DESC').fetchall()
+    return render_template('projects.html', projects=projects)
 
 @app.route('/finances')
 def finances():
-    return render_template('finances.html')
-
-@app.route('/edit_daily_tasks', methods=['GET', 'POST'])
-def edit_daily_tasks():
     db = get_db()
-    if request.method == 'POST':
-        # Clear and update daily tasks
-        db.execute('DELETE FROM daily_todo')
-        tasks = request.form.getlist('daily_task')
-        for t in tasks:
-            if t.strip():
-                db.execute('INSERT INTO daily_todo (task, done) VALUES (?, ?)', (t.strip(), 0))
-        db.commit()
-        return redirect(url_for('todo'))
-    else:
-        tasks = db.execute('SELECT * FROM daily_todo').fetchall()
-        return render_template('edit_daily_tasks.html', tasks=tasks)
+    exchange_rates = db.execute('SELECT * FROM exchange_rates ORDER BY updated_at DESC LIMIT 1').fetchall()
+    savings = db.execute('SELECT * FROM savings LIMIT 1').fetchone()
+    income = db.execute('SELECT * FROM income ORDER BY date DESC').fetchall()
+    expense = db.execute('SELECT * FROM expense ORDER BY date DESC').fetchall()
+    return render_template('finances.html',
+                           exchange_rates=exchange_rates,
+                           savings=savings,
+                           income=income,
+                           expense=expense)
 
 @app.route('/toggle_task_ajax/<int:task_id>', methods=['POST'])
 def toggle_task_ajax(task_id):
@@ -268,12 +280,18 @@ def toggle_task_ajax(task_id):
 def edit_task_ajax(task_id):
     db = get_db()
     data = request.get_json()
-    new_task = data.get('task', '').strip()
-    if new_task:
-        db.execute('UPDATE daily_todo SET task=? WHERE id=?', (new_task, task_id))
+    new_title = data.get('title', '').strip()
+    if new_title:
+        db.execute('UPDATE daily_todo SET title=? WHERE id=?', (new_title, task_id))
         db.commit()
-        return jsonify(success=True, task=new_task)
+        return jsonify(success=True, title=new_title)
     return jsonify(success=False), 400
+
+@app.route('/task_list')
+def task_list():
+    db = get_db()
+    tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+    return render_template('task_list.html', tasks=tasks)
 
 if __name__ == '__main__':
     app.run(debug=True)

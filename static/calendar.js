@@ -1,19 +1,20 @@
-document.addEventListener('DOMContentLoaded', function () {
-  let currentMonth = new Date().getMonth();
-  let currentYear = new Date().getFullYear();
-  let reminders = window.remindersData || {};
+function initCalendarPage() {
+  const calendar = document.getElementById('calendar');
+  if (!calendar) return;
+
+  // State: keep month/year across SPA navigation
+  let calendarState = window.__calendarState || {
+    currentMonth: new Date().getMonth(),
+    currentYear: new Date().getFullYear()
+  };
 
   function fetchReminders(year, month) {
     fetch(`/reminders_data?year=${year}&month=${month + 1}`)
       .then(res => res.json())
-      .then(data => {
-        reminders = data;
-        renderCalendar(year, month);
-      });
+      .then(data => renderCalendar(year, month, data));
   }
 
-  function renderCalendar(year, month) {
-    const calendar = document.getElementById('calendar');
+  function renderCalendar(year, month, reminders) {
     calendar.innerHTML = '';
     const monthYear = document.getElementById('calendar-month-year');
     const firstDay = new Date(year, month, 1).getDay();
@@ -21,9 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const today = new Date();
     monthYear.textContent = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
 
-    // Weekday headers
-    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    weekdays.forEach(day => {
+    // Weekdays
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(day => {
       const header = document.createElement('div');
       header.textContent = day;
       header.style.fontWeight = 'bold';
@@ -31,22 +31,17 @@ document.addEventListener('DOMContentLoaded', function () {
       calendar.appendChild(header);
     });
 
-    // Empty slots before first day
+    // Empty slots
     for (let i = 0; i < firstDay; i++) {
-      const empty = document.createElement('div');
-      calendar.appendChild(empty);
+      calendar.appendChild(document.createElement('div'));
     }
 
     // Days
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
       const cell = document.createElement('div');
       cell.className = 'calendar-day';
-      if (
-        day === today.getDate() &&
-        month === today.getMonth() &&
-        year === today.getFullYear()
-      ) {
+      if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
         cell.classList.add('today');
       }
       cell.setAttribute('data-date', dateStr);
@@ -64,22 +59,21 @@ document.addEventListener('DOMContentLoaded', function () {
         reminders[dateStr].forEach(rem => {
           const item = document.createElement('div');
           item.className = 'reminder-item';
-          item.setAttribute('data-reminder-id', rem.id);
-          item.ondblclick = function (e) {
+          let shortTitle = rem.title.length > 12 ? rem.title.slice(0, 12) + '…' : rem.title;
+          item.innerHTML = `<span class="reminder-dot" style="background:${rem.color};"></span><strong>${shortTitle}</strong>`;
+          if (rem.done) item.style.opacity = "0.5";
+          // Double click to edit
+          item.ondblclick = function(e) {
             e.stopPropagation();
             openReminderModal(dateStr, rem);
           };
-          // Show up to 12 letters for the title
-          let shortTitle = rem.title.length > 12 ? rem.title.slice(0, 12) + '…' : rem.title;
-          item.innerHTML = `<span class="reminder-dot" style="background:${rem.color};"></span>${rem.time ? `<span style="color:#5c6a82;font-size:0.95em;margin-right:4px;">${rem.time}</span>` : ''}<strong>${shortTitle}</strong>`;
-          if (rem.done) item.style.opacity = "0.5";
           rList.appendChild(item);
         });
         cell.appendChild(rList);
       }
 
       // Double click to add new reminder
-      cell.ondblclick = function (e) {
+      cell.ondblclick = function(e) {
         if (e.target === cell) openReminderModal(dateStr, null);
       };
 
@@ -87,13 +81,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // Modal logic (same as before)
+  window.closeReminderModal = function () {
+    document.getElementById('reminder-modal').style.display = 'none';
+  };
+
   function openReminderModal(dateStr, reminder) {
     document.getElementById('reminder-modal').style.display = 'flex';
     document.getElementById('modal-date').textContent = dateStr;
     document.getElementById('reminder-form').reset();
     document.getElementById('reminder-form').setAttribute('data-date', dateStr);
 
-    // Hide all action buttons by default
     document.getElementById('delete-reminder-btn').style.display = 'none';
     document.getElementById('done-reminder-btn').style.display = 'none';
     document.getElementById('undone-reminder-btn').style.display = 'none';
@@ -113,9 +111,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   }
-  window.closeReminderModal = function () {
-    document.getElementById('reminder-modal').style.display = 'none';
-  };
 
   document.getElementById('reminder-form').onsubmit = function (e) {
     e.preventDefault();
@@ -135,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(currentYear, currentMonth);
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
         }
       });
   };
@@ -152,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(currentYear, currentMonth);
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
         }
       });
   };
@@ -169,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(currentYear, currentMonth);
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
         }
       });
   };
@@ -186,28 +181,45 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (data.success) {
           closeReminderModal();
-          fetchReminders(currentYear, currentMonth);
+          fetchReminders(calendarState.currentYear, calendarState.currentMonth);
         }
       });
   };
 
   document.getElementById('prev-month').onclick = function () {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
+    calendarState.currentMonth--;
+    if (calendarState.currentMonth < 0) {
+      calendarState.currentMonth = 11;
+      calendarState.currentYear--;
     }
-    fetchReminders(currentYear, currentMonth);
+    fetchReminders(calendarState.currentYear, calendarState.currentMonth);
   };
   document.getElementById('next-month').onclick = function () {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
+    calendarState.currentMonth++;
+    if (calendarState.currentMonth > 11) {
+      calendarState.currentMonth = 0;
+      calendarState.currentYear++;
     }
-    fetchReminders(currentYear, currentMonth);
+    fetchReminders(calendarState.currentYear, calendarState.currentMonth);
   };
 
+  // Save state globally for SPA navigation
+  window.__calendarState = calendarState;
+
   // Initial load
-  fetchReminders(currentYear, currentMonth);
+  fetchReminders(calendarState.currentYear, calendarState.currentMonth);
+}
+
+// Always re-initialize on SPA content update
+window.addEventListener('spa:content-updated', function () {
+  if (document.getElementById('calendar')) {
+    initCalendarPage();
+  }
+});
+
+// Also run on first load
+document.addEventListener('DOMContentLoaded', function () {
+  if (document.getElementById('calendar')) {
+    initCalendarPage();
+  }
 });

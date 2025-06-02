@@ -9,30 +9,31 @@
 </head>
 
 <body>
-
-  <div class="container">
+  <div class="container" id="main-content">
     <h1>Finances</h1>
     <p class="subheader">Manage your financial goals and budgets</p>
 
-    <div class="features">
-      <a href="index.html" class="feature">
-        <h3>🏠 Home</h3>
-      </a>
-      <a href="todo.html" class="feature">
-        <h3>✅ To-Do</h3>
-      </a>
-      <a href="reminders.html" class="feature">
-        <h3>⏰ Reminders</h3>
-      </a>
-      <a href="goals.html" class="feature">
-        <h3>🎯 Goals</h3>
-      </a>
-      <a href="gym.html" class="feature">
-        <h3>🏋️ Gym</h3>
-      </a>
-      <a href="learning.html" class="feature">
-        <h3>📚 Learning</h3>
-      </a>
+    <div class="content">
+      <h3>Exchange Rates</h3>
+      <ul>
+        {% for rate in exchange_rates %}
+        <li>USD: {{ rate['usd'] }} | TRY: {{ rate['try'] }} | IQD: {{ rate['iqd'] }} (Updated: {{ rate['updated_at'] }})</li>
+        {% endfor %}
+      </ul>
+      <h3>Savings</h3>
+      <p>Total Savings: {{ savings['total'] }}</p>
+      <h3>Income</h3>
+      <ul>
+        {% for inc in income %}
+        <li>{{ inc['date'] }} - {{ inc['description'] }}: {{ inc['amount'] }}</li>
+        {% endfor %}
+      </ul>
+      <h3>Expenses</h3>
+      <ul>
+        {% for exp in expense %}
+        <li>{{ exp['date'] }} - {{ exp['category'] }}: {{ exp['amount'] }} ({{ exp['description'] }})</li>
+        {% endfor %}
+      </ul>
     </div>
 
     <div class="graph">
@@ -42,7 +43,7 @@
       </svg>
     </div>
   </div>
-
+  <script defer src="{{ url_for('static', filename='spa.js') }}"></script>
 </body>
 
 </html>

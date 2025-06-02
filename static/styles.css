@@ -316,6 +316,86 @@ polyline {
   box-shadow: 0 0 24px #b8c6db, 0 0 0 2px #e3eaf2;
 }
 
+/* Fancy Edit Modal Styles */
+.edit-modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(30, 34, 51, 0.35);
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+.edit-modal-form {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #b8c6db55;
+  padding: 2.5em 2em 2em 2em;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeInSoft 0.5s;
+}
+.edit-modal-form h2 {
+  margin: 0 0 1em 0;
+  font-size: 1.5em;
+  color: #1a2233;
+  text-align: center;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.edit-modal-input {
+  padding: 1em 1.2em;
+  border: 1.5px solid #b8c6db;
+  border-radius: 10px;
+  font-size: 1.1em;
+  font-family: 'Montserrat', Arial, sans-serif;
+  margin-bottom: 1.5em;
+  background: #f7fafc;
+  color: #1a2233;
+  transition: border 0.2s;
+  outline: none;
+}
+.edit-modal-input:focus {
+  border: 1.5px solid #5c6a82;
+  background: #fff;
+}
+.edit-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+}
+.edit-modal-cancel,
+.edit-modal-save {
+  padding: 0.7em 2em;
+  border-radius: 8px;
+  border: none;
+  font-size: 1em;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.edit-modal-cancel {
+  background: #e3eaf2;
+  color: #5c6a82;
+}
+.edit-modal-cancel:hover {
+  background: #b8c6db;
+  color: #fff;
+}
+.edit-modal-save {
+  background: linear-gradient(90deg, #b8c6db 0%, #e3eaf2 100%);
+  color: #1a2233;
+}
+.edit-modal-save:hover {
+  background: linear-gradient(90deg, #e3eaf2 0%, #b8c6db 100%);
+  color: #1a2233;
+}
+
 /* Soft Fade-in Animation */
 @keyframes fadeInSoft {
   0% {

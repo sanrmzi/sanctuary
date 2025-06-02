@@ -81,7 +81,7 @@ def create_db():
     c.execute('''
         CREATE TABLE IF NOT EXISTS daily_todo (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task TEXT,
+            title TEXT,
             done INTEGER DEFAULT 0
         )
     ''')
