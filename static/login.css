@@ -1,11 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Roboto+Mono:wght@400;700&display=swap');
+
 body {
-  background: linear-gradient(135deg, #0a1833 0%, #162447 100%);
+  background: linear-gradient(120deg, #e6ecf3 0%, #f7fafc 100%);
   min-height: 100vh;
   margin: 0;
-  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-x: hidden;
+  letter-spacing: 0.01em;
 }
 
 .login-container {
@@ -14,74 +18,90 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: fadeInSoft 1.1s cubic-bezier(0.77,0,0.18,1) both;
 }
 
 .login-box {
-  background: rgba(22, 36, 71, 0.97);
-  border-radius: 18px;
-  box-shadow: 0 0 32px 0 #00fff7cc, 0 0 0 2px #fff;
-  padding: 40px 36px 32px 36px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 32px;
+  box-shadow: 0 0 48px 0 #b8c6dbcc, 0 0 0 2px #e3eaf2;
+  padding: 56px 54px 44px 54px;
   min-width: 340px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1.5px solid #e3eaf2;
+  backdrop-filter: blur(18px) saturate(1.2);
+  animation: fadeInSoft 1.1s cubic-bezier(0.77,0,0.18,1) both;
 }
 
 h1.glow {
-  color: #00fff7;
-  text-shadow: 0 0 18px #00fff7, 0 0 2px #fff, 0 0 32px #fff;
-  font-size: 2.2rem;
-  margin-bottom: 1.5em;
+  font-family: 'Montserrat', 'Roboto Mono', Arial, sans-serif;
+  color: #1a2233;
+  text-shadow: 0 0 24px #e3eaf2, 0 0 2px #b8c6db;
+  font-size: 2.4rem;
+  margin-bottom: 1.7em;
   letter-spacing: 2px;
   text-align: center;
+  font-weight: 700;
 }
 
 label {
-  color: #fff;
+  color: #5c6a82;
   font-size: 1.1rem;
   margin-bottom: 0.3em;
   margin-top: 0.7em;
   display: block;
   letter-spacing: 1px;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 
 input[type="text"], input[type="password"] {
   width: 100%;
-  padding: 12px 10px;
-  margin-bottom: 0.8em;
+  padding: 14px 12px;
+  margin-bottom: 1em;
   border: none;
-  border-radius: 8px;
-  background: #0a1833;
-  color: #00fff7;
+  border-radius: 12px;
+  background: #f7fafc;
+  color: #1a2233;
   font-size: 1.1rem;
-  box-shadow: 0 0 8px #00fff755 inset;
+  box-shadow: 0 0 12px #b8c6db33 inset;
   outline: none;
   transition: box-shadow 0.2s;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+input[type="password"] {
+  font-size: 2rem;
+  letter-spacing: 0.15em;
+  font-family: 'Roboto Mono', 'Montserrat', Arial, sans-serif;
 }
 
 input[type="text"]:focus, input[type="password"]:focus {
-  box-shadow: 0 0 12px #00fff7cc, 0 0 0 2px #fff;
+  box-shadow: 0 0 16px #b8c6dbcc, 0 0 0 2px #e3eaf2;
 }
 
 .btn-glow {
   width: 100%;
-  padding: 12px 0;
-  background: linear-gradient(90deg, #00fff7 0%, #fff 100%);
-  color: #162447;
+  padding: 14px 0;
+  background: linear-gradient(90deg, #e3eaf2 0%, #b8c6db 100%);
+  color: #1a2233;
+  font-family: 'Montserrat', 'Roboto Mono', Arial, sans-serif;
   font-weight: bold;
   font-size: 1.1rem;
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 0 16px #00fff7cc, 0 0 0 2px #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #e3eaf2cc, 0 0 0 2px #b8c6db;
   cursor: pointer;
-  margin-top: 0.5em;
+  margin-top: 0.7em;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  letter-spacing: 1.2px;
 }
 
 .btn-glow:hover {
-  background: linear-gradient(90deg, #fff 0%, #00fff7 100%);
-  color: #0a1833;
-  box-shadow: 0 0 32px #fff, 0 0 0 2px #00fff7;
+  background: linear-gradient(90deg, #b8c6db 0%, #e3eaf2 100%);
+  color: #1a2233;
+  box-shadow: 0 0 36px #b8c6db, 0 0 0 2px #e3eaf2;
 }
 
 .error {
@@ -90,47 +110,33 @@ input[type="text"]:focus, input[type="password"]:focus {
   text-align: center;
   font-weight: bold;
   text-shadow: 0 0 6px #ff386055;
+  font-family: 'Montserrat', Arial, sans-serif;
 }
 
-/* Pixelated Cyberpunk Fade-in Animation */
-@keyframes pixelFadeIn {
+/* Soft Fade-in Animation */
+@keyframes fadeInSoft {
   0% {
     opacity: 0;
-    filter: blur(8px) contrast(0.5) brightness(1.5);
-    clip-path: polygon(
-      0% 0%, 0% 0%, 0% 0%, 0% 0%
-    );
-  }
-  40% {
-    opacity: 0.5;
-    filter: blur(4px) contrast(1.2) brightness(1.2);
-    clip-path: polygon(
-      0% 0%, 100% 0%, 100% 20%, 0% 20%
-    );
-  }
-  60% {
-    opacity: 0.7;
-    filter: blur(2px) contrast(1.5) brightness(1.1);
-    clip-path: polygon(
-      0% 0%, 100% 0%, 100% 60%, 0% 60%
-    );
-  }
-  80% {
-    opacity: 0.9;
-    filter: blur(1px) contrast(1.1) brightness(1.05);
-    clip-path: polygon(
-      0% 0%, 100% 0%, 100% 90%, 0% 90%
-    );
+    filter: blur(12px);
+    transform: scale(0.98);
   }
   100% {
     opacity: 1;
     filter: none;
-    clip-path: polygon(
-      0% 0%, 100% 0%, 100% 100%, 0% 100%
-    );
+    transform: scale(1);
   }
 }
 
-.login-container, .login-box {
-  animation: pixelFadeIn 1.1s cubic-bezier(0.77,0,0.18,1) both;
+/* Responsive for 16:9 screens */
+@media (max-width: 1200px) {
+  .login-box {
+    padding: 32px 10vw 32px 10vw;
+    min-width: 0;
+  }
+}
+@media (max-width: 700px) {
+  .login-box {
+    padding: 8vw 2vw;
+    border-radius: 0;
+  }
 }

@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask import Flask, render_template, request, redirect, url_for, session, g, jsonify
 import sqlite3
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secure random key
@@ -68,9 +69,60 @@ def require_login():
 def index():
     return render_template('index.html')
 
-@app.route('/todo')
+@app.route('/todo', methods=['GET'])
 def todo():
-    return render_template('todo.html')
+    db = get_db()
+    tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+    return render_template('todo.html', tasks=tasks)
+
+@app.route('/add_task', methods=['POST'])
+def add_task():
+    db = get_db()
+    task = request.form['task'].strip()
+    if task:
+        db.execute('INSERT INTO daily_todo (task, done) VALUES (?, ?)', (task, 0))
+        db.commit()
+    return redirect(url_for('todo'))
+
+@app.route('/edit_task/<int:task_id>', methods=['POST'])
+def edit_task(task_id):
+    db = get_db()
+    new_task = request.form['task'].strip()
+    if new_task:
+        db.execute('UPDATE daily_todo SET task=? WHERE id=?', (new_task, task_id))
+        db.commit()
+    return redirect(url_for('todo'))
+
+@app.route('/delete_task/<int:task_id>', methods=['POST'])
+def delete_task(task_id):
+    db = get_db()
+    db.execute('DELETE FROM daily_todo WHERE id=?', (task_id,))
+    db.commit()
+    return redirect(url_for('todo'))
+
+@app.route('/toggle_task/<int:task_id>', methods=['POST'])
+def toggle_task(task_id):
+    db = get_db()
+    task = db.execute('SELECT done FROM daily_todo WHERE id=?', (task_id,)).fetchone()
+    if task:
+        new_status = 0 if task['done'] else 1
+        db.execute('UPDATE daily_todo SET done=? WHERE id=?', (new_status, task_id))
+        db.commit()
+    return redirect(url_for('todo'))
+
+@app.route('/new_day', methods=['POST'])
+def new_day():
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+    for t in tasks:
+        db.execute(
+            'INSERT INTO todo_history (date, task, done) VALUES (?, ?, ?)',
+            (today, t['task'], t['done'])
+        )
+    db.execute('DELETE FROM daily_todo')
+    db.commit()
+    return redirect(url_for('todo'))
 
 @app.route('/reminders')
 def reminders():
@@ -91,6 +143,44 @@ def learning():
 @app.route('/finances')
 def finances():
     return render_template('finances.html')
+
+@app.route('/edit_daily_tasks', methods=['GET', 'POST'])
+def edit_daily_tasks():
+    db = get_db()
+    if request.method == 'POST':
+        # Clear and update daily tasks
+        db.execute('DELETE FROM daily_todo')
+        tasks = request.form.getlist('daily_task')
+        for t in tasks:
+            if t.strip():
+                db.execute('INSERT INTO daily_todo (task, done) VALUES (?, ?)', (t.strip(), 0))
+        db.commit()
+        return redirect(url_for('todo'))
+    else:
+        tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+        return render_template('edit_daily_tasks.html', tasks=tasks)
+
+@app.route('/toggle_task_ajax/<int:task_id>', methods=['POST'])
+def toggle_task_ajax(task_id):
+    db = get_db()
+    task = db.execute('SELECT done FROM daily_todo WHERE id=?', (task_id,)).fetchone()
+    if task:
+        new_status = 0 if task['done'] else 1
+        db.execute('UPDATE daily_todo SET done=? WHERE id=?', (new_status, task_id))
+        db.commit()
+        return jsonify(success=True, done=bool(new_status))
+    return jsonify(success=False), 404
+
+@app.route('/edit_task_ajax/<int:task_id>', methods=['POST'])
+def edit_task_ajax(task_id):
+    db = get_db()
+    data = request.get_json()
+    new_task = data.get('task', '').strip()
+    if new_task:
+        db.execute('UPDATE daily_todo SET task=? WHERE id=?', (new_task, task_id))
+        db.commit()
+        return jsonify(success=True, task=new_task)
+    return jsonify(success=False), 400
 
 if __name__ == '__main__':
     app.run(debug=True)

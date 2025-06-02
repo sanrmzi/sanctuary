@@ -59,21 +59,22 @@ def create_db():
         )
     ''')
 
-    # 4. To-Do
+    # 4. To-Do (history of daily to-dos)
     c.execute('''
-        CREATE TABLE IF NOT EXISTS todo (
+        CREATE TABLE IF NOT EXISTS todo_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            description TEXT,
-            done INTEGER DEFAULT 0,
-            date TEXT
+            date TEXT,
+            task TEXT,
+            done INTEGER DEFAULT 0
         )
     ''')
+
+    # 4b. Daily To-Do (current day's set)
     c.execute('''
         CREATE TABLE IF NOT EXISTS daily_todo (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             task TEXT,
-            done INTEGER DEFAULT 0,
-            date TEXT
+            done INTEGER DEFAULT 0
         )
     ''')
 
