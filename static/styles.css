@@ -1,0 +1,172 @@
+body {
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  background: linear-gradient(135deg, #0a1833 0%, #162447 100%);
+  margin: 0;
+  padding: 0;
+  color: #eaf6fb;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 32px 28px 28px 28px;
+  background: rgba(20, 30, 60, 0.97);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(10,24,51,0.55), 0 0 0 2px #00fff7;
+  backdrop-filter: blur(6px);
+}
+
+h1 {
+  color: #00fff7;
+  text-align: center;
+  font-size: 2.8rem;
+  letter-spacing: 2px;
+  margin-bottom: 0.2em;
+  text-shadow: 0 0 18px #00fff7, 0 0 2px #fff;
+}
+
+.subheader {
+  color: #b8c6db;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 2em;
+  letter-spacing: 1.5px;
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin: 30px 0 18px 0;
+}
+
+.feature {
+  flex: 1 1 220px;
+  max-width: 220px;
+  min-width: 180px;
+  text-decoration: none;
+  color: #eaf6fb;
+  background: linear-gradient(135deg, #162447 60%, #00fff7 180%);
+  padding: 22px 0 18px 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 16px 0 #00fff755;
+  border: 1.5px solid #00fff7;
+  transition: 
+    background 0.3s,
+    box-shadow 0.3s,
+    transform 0.2s,
+    border 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 0 0 6px #00fff7cc;
+}
+
+.feature:hover {
+  background: linear-gradient(135deg, #00fff7 10%, #162447 100%);
+  color: #0a1833;
+  box-shadow: 0 4px 32px 0 #00fff7cc, 0 0 0 2px #00fff7;
+  border: 1.5px solid #fff;
+  transform: translateY(-4px) scale(1.04);
+}
+
+.graph {
+  margin-top: 36px;
+  background: rgba(22, 36, 71, 0.85);
+  border-radius: 10px;
+  padding: 18px 12px 10px 12px;
+  box-shadow: 0 2px 16px 0 #00fff733;
+}
+
+.graph h3 {
+  color: #00fff7;
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+}
+
+.chart {
+  width: 100%;
+  height: 90px;
+  display: block;
+}
+
+polyline {
+  filter: drop-shadow(0 0 6px #00fff7cc);
+  stroke: #00fff7;
+  stroke-width: 2.5;
+}
+
+.logout-btn {
+  background: linear-gradient(90deg, #00fff7 0%, #fff 100%);
+  color: #162447;
+  font-weight: bold;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 0 12px #00fff7cc, 0 0 0 2px #fff;
+  cursor: pointer;
+  padding: 10px 24px;
+  margin-bottom: 18px;
+  margin-right: 2px;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(90deg, #fff 0%, #00fff7 100%);
+  color: #0a1833;
+  box-shadow: 0 0 24px #fff, 0 0 0 2px #00fff7;
+}
+
+/* Pixelated Cyberpunk Fade-in Animation */
+@keyframes pixelFadeIn {
+  0% {
+    opacity: 0;
+    filter: blur(8px) contrast(0.5) brightness(1.5);
+    clip-path: polygon(
+      0% 0%, 0% 0%, 0% 0%, 0% 0%
+    );
+  }
+  40% {
+    opacity: 0.5;
+    filter: blur(4px) contrast(1.2) brightness(1.2);
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 20%, 0% 20%
+    );
+  }
+  60% {
+    opacity: 0.7;
+    filter: blur(2px) contrast(1.5) brightness(1.1);
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 60%, 0% 60%
+    );
+  }
+  80% {
+    opacity: 0.9;
+    filter: blur(1px) contrast(1.1) brightness(1.05);
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 90%, 0% 90%
+    );
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+    clip-path: polygon(
+      0% 0%, 100% 0%, 100% 100%, 0% 100%
+    );
+  }
+}
+
+.container, .login-container, .login-box {
+  animation: pixelFadeIn 1.1s cubic-bezier(0.77,0,0.18,1) both;
+}
