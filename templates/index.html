@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctuary - Command Center</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: flex-end;">
+      <form action="{{ url_for('logout') }}" method="get">
+        <button type="submit" class="logout-btn">Logout</button>
+      </form>
+    </div>
+    <h1>Sanctuary</h1>
+    <p class="subheader">Command Center</p>
+
+    <div class="features">
+      <a href="{{ url_for('todo') }}" class="feature">
+        <h3>✅ To-Do</h3>
+      </a>
+      <a href="{{ url_for('reminders') }}" class="feature">
+        <h3>⏰ Reminders</h3>
+      </a>
+      <a href="{{ url_for('goals') }}" class="feature">
+        <h3>🎯 Goals</h3>
+      </a>
+      <a href="{{ url_for('gym') }}" class="feature">
+        <h3>🏋️ Gym</h3>
+      </a>
+      <a href="{{ url_for('learning') }}" class="feature">
+        <h3>📚 Learning</h3>
+      </a>
+      <a href="{{ url_for('finances') }}" class="feature">
+        <h3>💰 Finances</h3>
+      </a>
+    </div>
+
+    <div class="graph">
+      <h3>Weekly Overview</h3>
+      <svg viewBox="0 0 100 40" class="chart">
+        <polyline fill="none" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
+      </svg>
+    </div>
+  </div>
+</body>
+
+</html>

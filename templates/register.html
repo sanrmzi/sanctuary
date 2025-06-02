@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sanctuary Registration</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}" />
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h1 class="glow">Welcome to Sanctuary!</h1>
+      <form method="post">
+        <label for="name">Choose a username</label>
+        <input type="text" name="name" id="name" required autofocus>
+        <label for="password">Choose a password</label>
+        <input type="password" name="password" id="password" required>
+        {% if error %}
+          <div class="error">{{ error }}</div>
+        {% endif %}
+        <button type="submit" class="btn-glow">Register</button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

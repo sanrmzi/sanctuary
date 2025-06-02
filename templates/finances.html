@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctuary - Finances</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Finances</h1>
+    <p class="subheader">Manage your financial goals and budgets</p>
+
+    <div class="features">
+      <a href="index.html" class="feature">
+        <h3>🏠 Home</h3>
+      </a>
+      <a href="todo.html" class="feature">
+        <h3>✅ To-Do</h3>
+      </a>
+      <a href="reminders.html" class="feature">
+        <h3>⏰ Reminders</h3>
+      </a>
+      <a href="goals.html" class="feature">
+        <h3>🎯 Goals</h3>
+      </a>
+      <a href="gym.html" class="feature">
+        <h3>🏋️ Gym</h3>
+      </a>
+      <a href="learning.html" class="feature">
+        <h3>📚 Learning</h3>
+      </a>
+    </div>
+
+    <div class="graph">
+      <h3>Financial Overview</h3>
+      <svg viewBox="0 0 100 40" class="chart">
+        <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
+      </svg>
+    </div>
+  </div>
+
+</body>
+
+</html>

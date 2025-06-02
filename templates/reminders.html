@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanctuary - Reminders</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Reminders</h1>
+    <p class="subheader">Manage your reminders here</p>
+
+    <div class="reminder-list">
+      <h3>Your Reminders</h3>
+      <ul>
+        <li>Reminder 1</li>
+        <li>Reminder 2</li>
+        <li>Reminder 3</li>
+      </ul>
+    </div>
+
+    <div class="add-reminder">
+      <h3>Add a New Reminder</h3>
+      <form action="/add_reminder" method="POST">
+        <input type="text" name="reminder" placeholder="Enter your reminder" required />
+        <button type="submit">Add Reminder</button>
+      </form>
+    </div>
+
+    <div class="navigation">
+      <a href="{{ url_for('index') }}">Back to Command Center</a>
+    </div>
+  </div>
+
+</body>
+
+</html>
