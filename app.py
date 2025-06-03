@@ -256,15 +256,45 @@ def projects():
 @app.route('/finances')
 def finances():
     db = get_db()
-    exchange_rates = db.execute('SELECT * FROM exchange_rates ORDER BY updated_at DESC LIMIT 1').fetchall()
-    savings = db.execute('SELECT * FROM savings LIMIT 1').fetchone()
+    exchange_rates = db.execute('SELECT * FROM exchange_rates ORDER BY updated_at DESC LIMIT 1').fetchone()
+    categories = db.execute('SELECT * FROM categories ORDER BY title ASC').fetchall()
     income = db.execute('SELECT * FROM income ORDER BY date DESC').fetchall()
     expense = db.execute('SELECT * FROM expense ORDER BY date DESC').fetchall()
+
+    # Conversion rates
+    try_rate = exchange_rates['try'] if exchange_rates else 39
+    iqd_rate = exchange_rates['iqd'] if exchange_rates else 42
+
+    def to_usd(amount, currency):
+        if currency == 'USD':
+            return amount
+        elif currency == 'TL':
+            return amount / try_rate
+        elif currency == 'IQD':
+            return amount / (iqd_rate * try_rate)
+        return amount
+
+    total_income_usd = sum(to_usd(row['amount'], row['currency']) for row in income)
+    total_expense_usd = sum(to_usd(row['amount'], row['currency']) for row in expense)
+    savings_usd = total_income_usd - total_expense_usd
+
+    # Transactions for display
+    transactions = []
+    for inc in income:
+        transactions.append({'type': 'income', 'description': inc['description'], 'amount': inc['amount'], 'currency': inc['currency'], 'date': inc['date']})
+    for exp in expense:
+        transactions.append({'type': 'expense', 'description': exp['description'], 'amount': exp['amount'], 'currency': exp['currency'], 'date': exp['date'], 'category': exp['category']})
+    transactions = sorted(transactions, key=lambda x: x['date'], reverse=True)
+
     return render_template('finances.html',
-                           exchange_rates=exchange_rates,
-                           savings=savings,
+                           exchange_rates=[exchange_rates] if exchange_rates else [],
+                           savings_usd=savings_usd,
+                           total_income_usd=total_income_usd,
+                           total_expense_usd=total_expense_usd,
                            income=income,
-                           expense=expense)
+                           expense=expense,
+                           categories=categories,
+                           transactions=transactions)
 
 @app.route('/toggle_task_ajax/<int:task_id>', methods=['POST'])
 def toggle_task_ajax(task_id):
@@ -303,6 +333,70 @@ def reset_tasks():
         tasks = db.execute('SELECT * FROM daily_todo').fetchall()
         return render_template('task_list.html', tasks=tasks)
     return redirect(url_for('todo'))
+
+@app.route('/add_category', methods=['POST'])
+def add_category():
+    db = get_db()
+    title = request.form['title'].strip()
+    if title:
+        db.execute('INSERT INTO categories (title) VALUES (?)', (title,))
+        db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/edit_category/<int:cat_id>', methods=['POST'])
+def edit_category(cat_id):
+    db = get_db()
+    new_title = request.form['title'].strip()
+    if new_title:
+        db.execute('UPDATE categories SET title=? WHERE id=?', (new_title, cat_id))
+        db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/delete_category/<int:cat_id>', methods=['POST'])
+def delete_category(cat_id):
+    db = get_db()
+    db.execute('DELETE FROM categories WHERE id=?', (cat_id,))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/add_income', methods=['POST'])
+def add_income():
+    db = get_db()
+    description = request.form['description'].strip()
+    amount = float(request.form['amount'])
+    currency = request.form.get('currency', 'USD')
+    date = datetime.now().strftime('%Y-%m-%d')
+    db.execute('INSERT INTO income (description, amount, date, currency) VALUES (?, ?, ?, ?)', (description, amount, date, currency))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/add_expense', methods=['POST'])
+def add_expense():
+    db = get_db()
+    description = request.form['description'].strip()
+    amount = float(request.form['amount'])
+    currency = request.form.get('currency', 'USD')
+    category_id = int(request.form['category'])
+    date = datetime.now().strftime('%Y-%m-%d')
+    category = db.execute('SELECT title FROM categories WHERE id=?', (category_id,)).fetchone()
+    category_title = category['title'] if category else 'Other'
+    db.execute('INSERT INTO expense (category, amount, date, description, currency) VALUES (?, ?, ?, ?, ?)', (category_title, amount, date, description, currency))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.template_filter('comma')
+def comma_filter(value):
+    try:
+        return "{:,}".format(float(value)).replace('.0', '')
+    except Exception:
+        return value
+
+@app.template_filter('comma2')
+def comma2_filter(value):
+    try:
+        return "{:,.2f}".format(float(value)).rstrip('0').rstrip('.') if '.' in "{:,.2f}".format(float(value)) else "{:,.2f}".format(float(value))
+    except Exception:
+        return value
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,36 +1,173 @@
 {% extends "base.html" %}
 {% block title %}Sanctuary - Finances{% endblock %}
 {% block content %}
-<h1>Finances</h1>
-<p class="subheader">Manage your financial goals and budgets</p>
+<div class="finances-flex" style="margin-top:0;">
+  <div class="finances-main">
+    <h3>Exchange Rates</h3>
+    {% if exchange_rates %}
+      {% set rate = exchange_rates[0] %}
+      <div class="exchange-rates-row">
+        <div class="exchange-rate-card">
+          <div class="exchange-rate-label">100 USD → TL</div>
+          <div class="exchange-rate-value">{{ (100 * rate['try'])|comma2 }} TL</div>
+        </div>
+        <div class="exchange-rate-card">
+          <div class="exchange-rate-label">100 USD → IQD</div>
+          <div class="exchange-rate-value">{{ (100 * rate['try'] * rate['iqd'])|comma2 }} IQD</div>
+        </div>
+        <div class="exchange-rate-card">
+          <div class="exchange-rate-label">100,000 IQD → TL</div>
+          <div class="exchange-rate-value">{{ (100000 / rate['iqd'])|comma2 }} TL</div>
+        </div>
+      </div>
+      <div class="exchange-rates-note">
+        (Based on: 42 IQD = 1 TL, 100 USD = 3900 TL)
+      </div>
+    {% else %}
+      <p>No exchange rate data available.</p>
+    {% endif %}
 
-<div class="content">
-  <h3>Exchange Rates</h3>
-  <ul>
-    {% for rate in exchange_rates %}
-    <li>USD: {{ rate['usd'] }} | TRY: {{ rate['try'] }} | IQD: {{ rate['iqd'] }} (Updated: {{ rate['updated_at'] }})</li>
-    {% endfor %}
-  </ul>
-  <h3>Savings</h3>
-  <p>Total Savings: {{ savings['total'] }}</p>
-  <h3>Income</h3>
-  <ul>
-    {% for inc in income %}
-    <li>{{ inc['date'] }} - {{ inc['description'] }}: {{ inc['amount'] }}</li>
-    {% endfor %}
-  </ul>
-  <h3>Expenses</h3>
-  <ul>
-    {% for exp in expense %}
-    <li>{{ exp['date'] }} - {{ exp['category'] }}: {{ exp['amount'] }} ({{ exp['description'] }})</li>
-    {% endfor %}
-  </ul>
+    <div class="finances-table-row">
+      <div class="finances-table-col">
+        <h3>Savings</h3>
+        <div class="exchange-rate-card finances-table-card">
+          <div class="exchange-rate-value">{{ savings_usd|comma2 }} USD</div>
+        </div>
+      </div>
+      <div class="finances-table-col">
+        <h3>Income</h3>
+        <div class="exchange-rate-card finances-table-card">
+          <div class="exchange-rate-value">
+            {{ total_income_usd|comma2 }} USD
+          </div>
+        </div>
+      </div>
+      <div class="finances-table-col">
+        <h3>Expenses</h3>
+        <div class="exchange-rate-card finances-table-card">
+          <div class="exchange-rate-value">
+            {{ total_expense_usd|comma2 }} USD
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="transactions-list">
+      <h3>Transactions</h3>
+      <div class="transactions-list-inner">
+        {% for t in transactions %}
+          <div class="transaction-row">
+            <span class="transaction-amount {{ 'income' if t.type == 'income' else 'expense' }}">
+              {{ '+' if t.type == 'income' else '-' }}
+              {{ t.amount|comma2 }} {{ t.currency }}
+            </span>
+            <span class="transaction-desc">{{ t.description }}</span>
+            {% if t.type == 'expense' %}
+              <span class="transaction-category">{{ t.category }}</span>
+            {% endif %}
+            <span class="transaction-date">{{ t.date }}</span>
+          </div>
+        {% else %}
+          <div class="transaction-empty">No transactions yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Category Form (right side) -->
+  <div class="finances-categories">
+    <h4>Add Category</h4>
+    <form action="{{ url_for('add_category') }}" method="post" class="category-form">
+      <input type="text" name="title" placeholder="Category name" required>
+      <button type="submit" class="add-btn">Add</button>
+    </form>
+    <div class="categories-list">
+      <h5>Categories</h5>
+      <ul>
+        {% for cat in categories %}
+          <li class="category-item">
+            <span class="category-title" id="cat-title-{{ cat['id'] }}">{{ cat['title'] }}</span>
+            <form action="{{ url_for('edit_category', cat_id=cat['id']) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-cat-form-{{ cat['id'] }}">
+              <input type="text" name="title" value="{{ cat['title'] }}" required>
+              <button type="submit" class="cat-save-btn">Save</button>
+              <button type="button" class="cat-cancel-btn" onclick="cancelEditCategory({{ cat['id'] }})">Cancel</button>
+            </form>
+            <button class="cat-edit-btn" onclick="editCategory({{ cat['id'] }})" title="Edit">&#9998;</button>
+            <form action="{{ url_for('delete_category', cat_id=cat['id']) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this category?');">
+              <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="add-finance-btns">
+      <button class="add-btn" onclick="openFinanceModal('income')">Add Income</button>
+      <button class="add-btn" onclick="openFinanceModal('expense')">Add Expense</button>
+    </div>
+  </div>
 </div>
 
-<div class="graph">
-  <h3>Financial Overview</h3>
-  <svg viewBox="0 0 100 40" class="chart">
-    <polyline fill="none" stroke="#5a7899" stroke-width="2" points="0,30 15,20 30,25 45,10 60,12 75,5 90,15" />
-  </svg>
+<!-- Income Modal -->
+<div id="income-modal" class="finance-modal">
+  <div class="finance-modal-content">
+    <form action="{{ url_for('add_income') }}" method="post" class="finances-form">
+      <h4>Add Income</h4>
+      <input type="text" name="description" placeholder="Description" required>
+      <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+      <select name="currency" required>
+        <option value="USD">USD</option>
+        <option value="TL">TL</option>
+        <option value="IQD">IQD</option>
+      </select>
+      <div class="finance-modal-actions">
+        <button type="button" class="add-btn" onclick="closeFinanceModal('income')">Cancel</button>
+        <button type="submit" class="add-btn">Add Income</button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<!-- Expense Modal -->
+<div id="expense-modal" class="finance-modal">
+  <div class="finance-modal-content">
+    <form action="{{ url_for('add_expense') }}" method="post" class="finances-form">
+      <h4>Add Expense</h4>
+      <input type="text" name="description" placeholder="Description" required>
+      <input type="number" name="amount" placeholder="Amount" step="0.01" required>
+      <select name="currency" required>
+        <option value="USD">USD</option>
+        <option value="TL">TL</option>
+        <option value="IQD">IQD</option>
+      </select>
+      <select name="category" required>
+        <option value="">Category</option>
+        {% for cat in categories %}
+          <option value="{{ cat['id'] }}">{{ cat['title'] }}</option>
+        {% endfor %}
+      </select>
+      <div class="finance-modal-actions">
+        <button type="button" class="add-btn" onclick="closeFinanceModal('expense')">Cancel</button>
+        <button type="submit" class="add-btn">Add Expense</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openFinanceModal(type) {
+  document.getElementById(type + '-modal').style.display = 'flex';
+}
+function closeFinanceModal(type) {
+  document.getElementById(type + '-modal').style.display = 'none';
+}
+function editCategory(id) {
+  document.getElementById('cat-title-' + id).style.display = 'none';
+  document.getElementById('edit-cat-form-' + id).style.display = 'inline';
+}
+function cancelEditCategory(id) {
+  document.getElementById('edit-cat-form-' + id).style.display = 'none';
+  document.getElementById('cat-title-' + id).style.display = 'inline';
+}
+</script>
 {% endblock %}

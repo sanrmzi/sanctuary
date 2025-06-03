@@ -134,7 +134,7 @@ body {
 .container {
   margin-left: 230px;
   width: calc(100vw - 230px);
-  min-height: 100vh;
+  min-height: 90vh;
   max-height: 100vh;
   max-width: none;
   background: rgba(255,255,255,0.82);
@@ -148,7 +148,7 @@ body {
   align-items: center;
   min-width: 0;
   box-sizing: border-box;
-  padding: 2vw 3vw;
+  padding: 1vw 3vw;
 }
 
 h1 {
@@ -652,6 +652,238 @@ polyline {
   font-family: 'Montserrat', Arial, sans-serif;
 }
 
+/* Exchange rates cards for finances page */
+.exchange-rates-row {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  margin-bottom: 1.5em;
+  flex-wrap: wrap;
+}
+
+.exchange-rate-card {
+  background: rgba(245,249,255,0.92);
+  border-radius: 16px;
+  box-shadow: 0 2px 16px #b8c6db22;
+  padding: 28px 32px;
+  min-width: 180px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.exchange-rate-label {
+  font-size: 1.1em;
+  color: #5c6a82;
+  margin-bottom: 0.5em;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.exchange-rate-value {
+  font-size: 2em;
+  font-weight: 700;
+  color: #1a2233;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.finances-flex {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.finances-main {
+  flex: 1;
+}
+
+.exchange-rates-note {
+  font-size: 0.95em;
+  color: #888;
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.finances-table-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 2em;
+}
+
+.finances-table-col {
+  flex: 1;
+}
+
+.finances-table-card {
+  padding: 18px 0;
+}
+
+.finances-forms-row {
+  display: flex;
+  gap: 24px;
+}
+
+.finances-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.finances-form input,
+.finances-form select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #e3eaf2;
+}
+
+.transactions-list {
+  margin-top: 2.5em;
+}
+
+.transactions-list-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.transaction-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e3eaf2;
+}
+
+.transaction-amount {
+  font-weight: 600;
+}
+.transaction-amount.income {
+  color: green;
+}
+.transaction-amount.expense {
+  color: #b8002f;
+}
+.transaction-desc {
+  color: #5c6a82;
+}
+.transaction-category {
+  background: #e3eaf2;
+  color: #5c6a82;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-size: 0.95em;
+}
+.transaction-date {
+  margin-left: auto;
+  font-size: 0.95em;
+  color: #aaa;
+}
+.transaction-empty {
+  color: #aaa;
+}
+
+.finances-categories {
+  min-width: 220px;
+  max-width: 260px;
+}
+
+.category-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.category-form input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1.5px solid #e3eaf2;
+}
+
+.categories-list {
+  margin-top: 1.5em;
+}
+
+.categories-list h5 {
+  margin-bottom: 0.5em;
+}
+
+.categories-list ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.categories-list li {
+  padding: 2px 0;
+  color: #5c6a82;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.category-title {
+  flex: 1;
+  color: #5c6a82;
+  font-size: 1em;
+}
+.cat-edit-btn,
+.cat-delete-btn,
+.cat-save-btn,
+.cat-cancel-btn {
+  background: none;
+  border: none;
+  color: #5c6a82;
+  font-size: 1em;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+.cat-edit-btn:hover {
+  background: #e3eaf2;
+  color: #1a2233;
+}
+.cat-delete-btn {
+  color: #ff3860;
+  font-size: 1.1em;
+}
+.cat-delete-btn:hover {
+  background: #ffeaea;
+  color: #b8002f;
+}
+.cat-save-btn {
+  color: #1a2233;
+  background: #e3eaf2;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.cat-save-btn:hover {
+  background: #b8c6db;
+  color: #fff;
+}
+.cat-cancel-btn {
+  color: #888;
+  margin-left: 2px;
+}
+.cat-cancel-btn:hover {
+  background: #eee;
+  color: #1a2233;
+}
+.inline-edit-form {
+  display: inline;
+}
+.inline-edit-form input[type="text"] {
+  padding: 2px 6px;
+  border-radius: 6px;
+  border: 1px solid #e3eaf2;
+  font-size: 1em;
+  margin-right: 2px;
+}
+
 /* Responsive adjustments */
 /*
 @media (max-width: 1100px) {
@@ -698,3 +930,39 @@ polyline {
   }
 }
 */
+
+.add-finance-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 2em;
+}
+
+.finance-modal {
+  display: none;
+  position: fixed;
+  z-index: 3000;
+  left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(30, 34, 51, 0.25);
+  align-items: center;
+  justify-content: center;
+}
+
+.finance-modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #b8c6db55;
+  padding: 2.5em 2em 2em 2em;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: fadeInSoft 0.5s;
+}
+
+.finance-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+  margin-top: 1em;
+}

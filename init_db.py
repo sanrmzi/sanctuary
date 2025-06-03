@@ -35,7 +35,8 @@ def create_db():
             category TEXT,
             amount REAL,
             date TEXT,
-            description TEXT
+            description TEXT,
+            currency TEXT DEFAULT 'USD'
         )
     ''')
     c.execute('''
@@ -43,7 +44,8 @@ def create_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             description TEXT,
             amount REAL,
-            date TEXT
+            date TEXT,
+            currency TEXT DEFAULT 'USD'
         )
     ''')
 
@@ -113,6 +115,14 @@ def create_db():
         )
     ''')
 
+    # 7. Categories for expenses
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL
+        )
+    ''')
+
     # Insert a blank user row if not exists
     c.execute('SELECT COUNT(*) FROM user')
     if c.fetchone()[0] == 0:
@@ -122,6 +132,14 @@ def create_db():
     c.execute('SELECT COUNT(*) FROM savings')
     if c.fetchone()[0] == 0:
         c.execute('INSERT INTO savings (total) VALUES (0)')
+
+    # Insert the correct exchange rates if not exists or update the latest
+    c.execute('SELECT COUNT(*) FROM exchange_rates')
+    if c.fetchone()[0] == 0:
+        c.execute('INSERT INTO exchange_rates (usd, try, iqd) VALUES (?, ?, ?)', (1, 39, 42))
+    else:
+        # Always keep the latest row up to date
+        c.execute('UPDATE exchange_rates SET usd = ?, try = ?, iqd = ? WHERE id = (SELECT id FROM exchange_rates ORDER BY id DESC LIMIT 1)', (1, 39, 42))
 
     conn.commit()
     conn.close()
