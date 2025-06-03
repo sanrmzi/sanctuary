@@ -278,12 +278,27 @@ def finances():
     total_expense_usd = sum(to_usd(row['amount'], row['currency']) for row in expense)
     savings_usd = total_income_usd - total_expense_usd
 
-    # Transactions for display
+    # Transactions for display (include id!)
     transactions = []
     for inc in income:
-        transactions.append({'type': 'income', 'description': inc['description'], 'amount': inc['amount'], 'currency': inc['currency'], 'date': inc['date']})
+        transactions.append({
+            'id': inc['id'],
+            'type': 'income',
+            'description': inc['description'],
+            'amount': inc['amount'],
+            'currency': inc['currency'],
+            'date': inc['date']
+        })
     for exp in expense:
-        transactions.append({'type': 'expense', 'description': exp['description'], 'amount': exp['amount'], 'currency': exp['currency'], 'date': exp['date'], 'category': exp['category']})
+        transactions.append({
+            'id': exp['id'],
+            'type': 'expense',
+            'description': exp['description'],
+            'amount': exp['amount'],
+            'currency': exp['currency'],
+            'date': exp['date'],
+            'category': exp['category']
+        })
     transactions = sorted(transactions, key=lambda x: x['date'], reverse=True)
 
     return render_template('finances.html',
@@ -384,6 +399,43 @@ def add_expense():
     db.commit()
     return redirect(url_for('finances'))
 
+@app.route('/edit_income/<int:income_id>', methods=['POST'])
+def edit_income(income_id):
+    db = get_db()
+    description = request.form['description'].strip()
+    amount = float(request.form['amount'])
+    currency = request.form.get('currency', 'USD')
+    db.execute('UPDATE income SET description=?, amount=?, currency=? WHERE id=?', (description, amount, currency, income_id))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/edit_expense/<int:expense_id>', methods=['POST'])
+def edit_expense(expense_id):
+    db = get_db()
+    description = request.form['description'].strip()
+    amount = float(request.form['amount'])
+    currency = request.form.get('currency', 'USD')
+    category_id = int(request.form['category'])
+    category = db.execute('SELECT title FROM categories WHERE id=?', (category_id,)).fetchone()
+    category_title = category['title'] if category else 'Other'
+    db.execute('UPDATE expense SET description=?, amount=?, currency=?, category=? WHERE id=?', (description, amount, currency, category_title, expense_id))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/delete_income/<int:income_id>', methods=['POST'])
+def delete_income(income_id):
+    db = get_db()
+    db.execute('DELETE FROM income WHERE id=?', (income_id,))
+    db.commit()
+    return redirect(url_for('finances'))
+
+@app.route('/delete_expense/<int:expense_id>', methods=['POST'])
+def delete_expense(expense_id):
+    db = get_db()
+    db.execute('DELETE FROM expense WHERE id=?', (expense_id,))
+    db.commit()
+    return redirect(url_for('finances'))
+
 @app.template_filter('comma')
 def comma_filter(value):
     try:
@@ -397,6 +449,23 @@ def comma2_filter(value):
         return "{:,.2f}".format(float(value)).rstrip('0').rstrip('.') if '.' in "{:,.2f}".format(float(value)) else "{:,.2f}".format(float(value))
     except Exception:
         return value
+
+@app.template_filter('daysago')
+def daysago(date_str):
+    """Show 'today', '1 day ago', '2 days ago', etc."""
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d")
+        days = (datetime.now().date() - date_obj.date()).days
+        if days == 0:
+            return "today"
+        elif days == 1:
+            return "1 day ago"
+        elif days > 1:
+            return f"{days} days ago"
+        else:
+            return date_str
+    except Exception:
+        return date_str
 
 if __name__ == '__main__':
     app.run(debug=True)

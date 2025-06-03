@@ -31,14 +31,14 @@
       <div class="finances-table-col">
         <h3>Savings</h3>
         <div class="exchange-rate-card finances-table-card">
-          <div class="exchange-rate-value">{{ savings_usd|comma2 }} USD</div>
+          <div class="exchange-rate-value">{{ savings_usd|comma2 }} $</div>
         </div>
       </div>
       <div class="finances-table-col">
         <h3>Income</h3>
         <div class="exchange-rate-card finances-table-card">
           <div class="exchange-rate-value">
-            {{ total_income_usd|comma2 }} USD
+            {{ total_income_usd|comma2 }} $
           </div>
         </div>
       </div>
@@ -46,33 +46,86 @@
         <h3>Expenses</h3>
         <div class="exchange-rate-card finances-table-card">
           <div class="exchange-rate-value">
-            {{ total_expense_usd|comma2 }} USD
+            {{ total_expense_usd|comma2 }} $
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Transactions List -->
+    {# Transactions List
     <div class="transactions-list">
-      <h3>Transactions</h3>
-      <div class="transactions-list-inner">
-        {% for t in transactions %}
-          <div class="transaction-row">
-            <span class="transaction-amount {{ 'income' if t.type == 'income' else 'expense' }}">
-              {{ '+' if t.type == 'income' else '-' }}
-              {{ t.amount|comma2 }} {{ t.currency }}
-            </span>
-            <span class="transaction-desc">{{ t.description }}</span>
-            {% if t.type == 'expense' %}
-              <span class="transaction-category">{{ t.category }}</span>
-            {% endif %}
-            <span class="transaction-date">{{ t.date }}</span>
-          </div>
-        {% else %}
-          <div class="transaction-empty">No transactions yet.</div>
-        {% endfor %}
+      <h3>Latest Transactions</h3>
+      <div class="transactions-table">
+        <div class="transactions-table-header">
+          <span class="trans-col trans-amount">Amount</span>
+          <span class="trans-col trans-desc">Description</span>
+          <span class="trans-col trans-cat">Category</span>
+          <span class="trans-col trans-date">Date</span>
+          <span class="trans-col trans-actions"></span>
+        </div>
+        <div class="transactions-list-inner">
+          {% for t in transactions[:4] %}
+            <div class="transaction-row" onmouseover="showTransActions({{ loop.index0 }})" onmouseout="hideTransActions({{ loop.index0 }})">
+              <span class="trans-col trans-amount transaction-amount {{ 'income' if t.type == 'income' else 'expense' }}">
+                {{ '+' if t.type == 'income' else '-' }}
+                {{ t.amount|comma2 }} {{ t.currency }}
+              </span>
+              <span class="trans-col trans-desc transaction-desc">{{ t.description }}</span>
+              <span class="trans-col trans-cat transaction-category">{% if t.type == 'expense' %}{{ t.category }}{% endif %}</span>
+              <span class="trans-col trans-date transaction-date">{{ t.date }}</span>
+              <span class="trans-col trans-actions transaction-actions" id="trans-actions-{{ loop.index0 }}">
+                <!-- Edit Form (hidden by default) -->
+                {% if t.type == 'income' %}
+                  <form action="{{ url_for('edit_income', income_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-income-form-{{ t.id }}">
+                    <input type="text" name="description" value="{{ t.description }}" required>
+                    <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                    <select name="currency" required>
+                      <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                      <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                      <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                    </select>
+                    <button type="submit" class="cat-save-btn">Save</button>
+                    <button type="button" class="cat-cancel-btn" onclick="cancelEditTrans({{ t.id }}, 'income')">Cancel</button>
+                  </form>
+                  <button class="cat-edit-btn" onclick="editTrans({{ t.id }}, 'income')" title="Edit">&#9998;</button>
+                  <form action="{{ url_for('delete_income', income_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this income?');">
+                    <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+                  </form>
+                {% else %}
+                  <form action="{{ url_for('edit_expense', expense_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-expense-form-{{ t.id }}">
+                    <input type="text" name="description" value="{{ t.description }}" required>
+                    <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                    <select name="currency" required>
+                      <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                      <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                      <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                    </select>
+                    <select name="category" required>
+                      {% for cat in categories %}
+                        <option value="{{ cat['id'] }}" {% if cat['title'] == t.category %}selected{% endif %}>{{ cat['title'] }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="cat-save-btn">Save</button>
+                    <button type="button" class="cat-cancel-btn" onclick="cancelEditTrans({{ t.id }}, 'expense')">Cancel</button>
+                  </form>
+                  <button class="cat-edit-btn" onclick="editTrans({{ t.id }}, 'expense')" title="Edit">&#9998;</button>
+                  <form action="{{ url_for('delete_expense', expense_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this expense?');">
+                    <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+                  </form>
+                {% endif %}
+              </span>
+            </div>
+          {% else %}
+            <div class="transaction-empty">No transactions yet.</div>
+          {% endfor %}
+        </div>
+        {% if transactions|length > 4 %}
+          <button class="add-btn view-all-categories-btn" onclick="openTransactionsModal()">View all</button>
+        {% endif %}
       </div>
     </div>
+    #}
+
   </div>
 
   <!-- Add Category Form (right side) -->
@@ -84,8 +137,8 @@
     </form>
     <div class="categories-list">
       <h5>Categories</h5>
-      <ul>
-        {% for cat in categories %}
+      <ul id="categories-preview-list">
+        {% for cat in categories[:5] %}
           <li class="category-item">
             <span class="category-title" id="cat-title-{{ cat['id'] }}">{{ cat['title'] }}</span>
             <form action="{{ url_for('edit_category', cat_id=cat['id']) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-cat-form-{{ cat['id'] }}">
@@ -100,11 +153,107 @@
           </li>
         {% endfor %}
       </ul>
+      {% if categories|length > 5 %}
+        <button class="add-btn view-all-categories-btn" onclick="openCategoriesModal()">View all categories</button>
+      {% endif %}
     </div>
     <div class="add-finance-btns">
-      <button class="add-btn" onclick="openFinanceModal('income')">Add Income</button>
-      <button class="add-btn" onclick="openFinanceModal('expense')">Add Expense</button>
+      <button class="add-btn" onclick="openFinanceModal('income')">Income</button>
+      <button class="add-btn" onclick="openFinanceModal('expense')">Expense</button>
     </div>
+
+    <!-- Compact Transactions Table (right column, under add buttons) -->
+    <div class="transactions-list transactions-list-side">
+      <h3 class="transactions-side-header">Latest Transactions</h3>
+      <div class="transactions-table transactions-table-side">
+        <div class="transactions-list-inner">
+          {% for t in transactions[:4] %}
+            <div class="transaction-row" onmouseover="showTransActions({{ loop.index0 }})" onmouseout="hideTransActions({{ loop.index0 }})">
+              <span class="trans-col trans-amount transaction-amount {{ 'income' if t.type == 'income' else 'expense' }}">
+                {{ t.amount|comma2 }} 
+                {% if t.currency == 'USD' %}$ {% elif t.currency == 'TL' %}₺{% elif t.currency == 'IQD' %}د.ع{% else %}{{ t.currency }}{% endif %}
+              </span>
+              <span class="trans-col trans-date transaction-date">
+                {{ t.date | daysago }}
+              </span>
+              <span class="trans-col trans-actions transaction-actions" id="trans-actions-{{ loop.index0 }}">
+                {% if t.type == 'income' %}
+                  <form action="{{ url_for('edit_income', income_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-income-form-{{ t.id }}">
+                    <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                    <select name="currency" required>
+                      <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                      <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                      <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                    </select>
+                    <button type="submit" class="cat-save-btn">Save</button>
+                    <button type="button" class="cat-cancel-btn" onclick="cancelEditTrans({{ t.id }}, 'income')">Cancel</button>
+                  </form>
+                  <div class="trans-action-btns">
+                    <button class="cat-edit-btn" onclick="editTrans({{ t.id }}, 'income')" title="Edit">&#9998;</button>
+                    <form action="{{ url_for('delete_income', income_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this income?');" style="display:inline;">
+                      <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+                    </form>
+                  </div>
+                {% else %}
+                  <form action="{{ url_for('edit_expense', expense_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-expense-form-{{ t.id }}">
+                    <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                    <select name="currency" required>
+                      <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                      <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                      <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                    </select>
+                    <select name="category" required>
+                      {% for cat in categories %}
+                        <option value="{{ cat['id'] }}" {% if cat['title'] == t.category %}selected{% endif %}>{{ cat['title'] }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="cat-save-btn">Save</button>
+                    <button type="button" class="cat-cancel-btn" onclick="cancelEditTrans({{ t.id }}, 'expense')">Cancel</button>
+                  </form>
+                  <div class="trans-action-btns">
+                    <button class="cat-edit-btn" onclick="editTrans({{ t.id }}, 'expense')" title="Edit">&#9998;</button>
+                    <form action="{{ url_for('delete_expense', expense_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this expense?');" style="display:inline;">
+                      <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+                    </form>
+                  </div>
+                {% endif %}
+              </span>
+            </div>
+          {% else %}
+            <div class="transaction-empty">No transactions yet.</div>
+          {% endfor %}
+        </div>
+        {% if transactions|length > 4 %}
+          <button class="add-btn view-all-categories-btn" onclick="openTransactionsModal()">View all</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Categories Modal -->
+<div id="categories-modal" class="categories-modal">
+  <div class="categories-modal-content">
+    <div class="categories-modal-header">
+      <span>All Categories</span>
+      <button class="categories-modal-close" onclick="closeCategoriesModal()">&times;</button>
+    </div>
+    <ul class="categories-modal-list">
+      {% for cat in categories %}
+        <li class="category-item">
+          <span class="category-title" id="cat-title-modal-{{ cat['id'] }}">{{ cat['title'] }}</span>
+          <form action="{{ url_for('edit_category', cat_id=cat['id']) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-cat-form-modal-{{ cat['id'] }}">
+            <input type="text" name="title" value="{{ cat['title'] }}" required>
+            <button type="submit" class="cat-save-btn">Save</button>
+            <button type="button" class="cat-cancel-btn" onclick="cancelEditCategoryModal({{ cat['id'] }})">Cancel</button>
+          </form>
+          <button class="cat-edit-btn" onclick="editCategoryModal({{ cat['id'] }})" title="Edit">&#9998;</button>
+          <form action="{{ url_for('delete_category', cat_id=cat['id']) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this category?');">
+            <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
   </div>
 </div>
 
@@ -154,6 +303,76 @@
   </div>
 </div>
 
+<!-- Transactions Modal -->
+<div id="transactions-modal" class="categories-modal">
+  <div class="categories-modal-content">
+    <div class="categories-modal-header">
+      <span>All Transactions</span>
+      <button class="categories-modal-close" onclick="closeTransactionsModal()">&times;</button>
+    </div>
+    <div class="transactions-table-header">
+      <span class="trans-col trans-amount">Amount</span>
+      <span class="trans-col trans-desc">Description</span>
+      <span class="trans-col trans-cat">Category</span>
+      <span class="trans-col trans-date">Date</span>
+      <span class="trans-col trans-actions"></span>
+    </div>
+    <ul class="categories-modal-list">
+      {% for t in transactions %}
+        <li class="transaction-row" style="display:flex;">
+          <span class="trans-col trans-amount transaction-amount {{ 'income' if t.type == 'income' else 'expense' }}">
+            {{ t.amount|comma2 }} 
+            {% if t.currency == 'USD' %}$ {% elif t.currency == 'TL' %}₺{% elif t.currency == 'IQD' %}د.ع{% else %}{{ t.currency }}{% endif %}
+          </span>
+          <span class="trans-col trans-desc transaction-desc">{{ t.description }}</span>
+          <span class="trans-col trans-cat transaction-category">{% if t.type == 'expense' %}{{ t.category }}{% endif %}</span>
+          <span class="trans-col trans-date transaction-date">{{ t.date }}</span>
+          <span class="trans-col trans-actions transaction-actions">
+            {% if t.type == 'income' %}
+              <form action="{{ url_for('edit_income', income_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-income-form-modal-{{ t.id }}">
+                <input type="text" name="description" value="{{ t.description }}" required>
+                <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                <select name="currency" required>
+                  <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                  <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                  <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                </select>
+                <button type="submit" class="cat-save-btn">Save</button>
+                <button type="button" class="cat-cancel-btn" onclick="cancelEditTransModal({{ t.id }}, 'income')">Cancel</button>
+              </form>
+              <button class="cat-edit-btn" onclick="editTransModal({{ t.id }}, 'income')" title="Edit">&#9998;</button>
+              <form action="{{ url_for('delete_income', income_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this income?');">
+                <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+              </form>
+            {% else %}
+              <form action="{{ url_for('edit_expense', expense_id=t.id) }}" method="post" class="inline-edit-form" style="display:none;" id="edit-expense-form-modal-{{ t.id }}">
+                <input type="text" name="description" value="{{ t.description }}" required>
+                <input type="number" name="amount" value="{{ t.amount }}" step="0.01" required>
+                <select name="currency" required>
+                  <option value="USD" {% if t.currency == 'USD' %}selected{% endif %}>USD</option>
+                  <option value="TL" {% if t.currency == 'TL' %}selected{% endif %}>TL</option>
+                  <option value="IQD" {% if t.currency == 'IQD' %}selected{% endif %}>IQD</option>
+                </select>
+                <select name="category" required>
+                  {% for cat in categories %}
+                    <option value="{{ cat['id'] }}" {% if cat['title'] == t.category %}selected{% endif %}>{{ cat['title'] }}</option>
+                  {% endfor %}
+                </select>
+                <button type="submit" class="cat-save-btn">Save</button>
+                <button type="button" class="cat-cancel-btn" onclick="cancelEditTransModal({{ t.id }}, 'expense')">Cancel</button>
+              </form>
+              <button class="cat-edit-btn" onclick="editTransModal({{ t.id }}, 'expense')" title="Edit">&#9998;</button>
+              <form action="{{ url_for('delete_expense', expense_id=t.id) }}" method="post" class="inline-delete-form" onsubmit="return confirm('Delete this expense?');">
+                <button type="submit" class="cat-delete-btn" title="Delete">&times;</button>
+              </form>
+            {% endif %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
 <script>
 function openFinanceModal(type) {
   document.getElementById(type + '-modal').style.display = 'flex';
@@ -168,6 +387,26 @@ function editCategory(id) {
 function cancelEditCategory(id) {
   document.getElementById('edit-cat-form-' + id).style.display = 'none';
   document.getElementById('cat-title-' + id).style.display = 'inline';
+}
+function openCategoriesModal() {
+  document.getElementById('categories-modal').style.display = 'flex';
+}
+function closeCategoriesModal() {
+  document.getElementById('categories-modal').style.display = 'none';
+}
+function editCategoryModal(id) {
+  document.getElementById('cat-title-modal-' + id).style.display = 'none';
+  document.getElementById('edit-cat-form-modal-' + id).style.display = 'inline';
+}
+function cancelEditCategoryModal(id) {
+  document.getElementById('edit-cat-form-modal-' + id).style.display = 'none';
+  document.getElementById('cat-title-modal-' + id).style.display = 'inline';
+}
+function showTransActions(index) {
+  document.getElementById('trans-actions-' + index).style.display = 'inline';
+}
+function hideTransActions(index) {
+  document.getElementById('trans-actions-' + index).style.display = 'none';
 }
 </script>
 {% endblock %}
