@@ -294,5 +294,15 @@ def task_list():
     tasks = db.execute('SELECT * FROM daily_todo').fetchall()
     return render_template('task_list.html', tasks=tasks)
 
+@app.route('/reset_tasks', methods=['POST'])
+def reset_tasks():
+    db = get_db()
+    db.execute('UPDATE daily_todo SET done = 0')
+    db.commit()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        tasks = db.execute('SELECT * FROM daily_todo').fetchall()
+        return render_template('task_list.html', tasks=tasks)
+    return redirect(url_for('todo'))
+
 if __name__ == '__main__':
     app.run(debug=True)

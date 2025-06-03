@@ -98,6 +98,22 @@ function initTodoPage() {
       );
     };
   });
+
+  const resetForm = document.getElementById('reset-tasks-form');
+  if (resetForm) {
+    resetForm.onsubmit = function(e) {
+      e.preventDefault();
+      fetch(resetForm.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(res => res.text())
+        .then(html => {
+          document.getElementById('task-list').outerHTML = html;
+          initTodoPage();
+        });
+    };
+  }
 }
 
 // Run on initial load

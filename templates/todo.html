@@ -2,7 +2,11 @@
 {% block title %}Sanctuary - To-Do{% endblock %}
 {% block content %}
 <h1>To-Do List</h1>
-<p class="subheader">Manage your tasks efficiently</p>
+
+<!-- "New day" Button in place of subheader -->
+<form id="reset-tasks-form" action="{{ url_for('reset_tasks') }}" method="POST" style="margin-bottom:2em; text-align:center;">
+  <button type="submit" class="add-btn" style="background:#e3eaf2;color:#1a2233;">New day</button>
+</form>
 
 <form class="task-input" action="{{ url_for('add_task') }}" method="POST" id="add-task-form">
   <input type="text" name="task" id="task" placeholder="Add a new task..." required />
